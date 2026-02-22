@@ -311,6 +311,31 @@
             color: #ff3b30;
         }
 
+        .delete-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+
         .empty-state {
             text-align: center;
             color: #86868b;
@@ -548,6 +573,13 @@
             processVoiceCommand(command) {
                 const lowerCommand = command.toLowerCase();
                 
+                // Verificar se é comando de remoção
+                if (lowerCommand.includes('remova') || lowerCommand.includes('apague') || 
+                    lowerCommand.includes('delete') || lowerCommand.includes('excluir')) {
+                    this.handleDeleteCommand(lowerCommand);
+                    return;
+                }
+                
                 const valueMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
                 const value = valueMatch ? parseFloat(valueMatch[1].replace(',', '.')) : null;
 
@@ -578,6 +610,42 @@
                     this.speak(`Entendido! ${type === 'expense' ? 'Despesa' : 'Receita'} de ${value.toFixed(2)} reais registrada.`);
                 } else {
                     this.speak('Desculpe, não entendi. Tente dizer algo como: gastei 50 reais com almoço.');
+                }
+
+                setTimeout(() => {
+                    document.getElementById('transcript').textContent = '';
+                }, 3000);
+            }
+
+            handleDeleteCommand(command) {
+                const valueMatch = command.match(/(\d+(?:[.,]\d+)?)/);
+                const value = valueMatch ? parseFloat(valueMatch[1].replace(',', '.')) : null;
+
+                if (!value) {
+                    // Remover última transação
+                    if (this.transactions.length > 0) {
+                        const lastTransaction = this.transactions[0];
+                        this.transactions.shift();
+                        this.saveTransactions();
+                        this.updateUI();
+                        this.speak('Última transação removida.');
+                    } else {
+                        this.speak('Não há transações para remover.');
+                    }
+                    return;
+                }
+
+                // Procurar transação com o valor específico
+                const transactionIndex = this.transactions.findIndex(t => t.amount === value);
+                
+                if (transactionIndex !== -1) {
+                    const transaction = this.transactions[transactionIndex];
+                    this.transactions.splice(transactionIndex, 1);
+                    this.saveTransactions();
+                    this.updateUI();
+                    this.speak(`Transação de ${value.toFixed(2)} reais removida.`);
+                } else {
+                    this.speak(`Não encontrei nenhuma transação de ${value.toFixed(2)} reais.`);
                 }
 
                 setTimeout(() => {
@@ -675,11 +743,23 @@
                                 <p>${t.date}</p>
                             </div>
                         </div>
-                        <div class="transaction-amount">
-                            ${t.type === 'income' ? '+' : '-'} ${this.formatCurrency(t.amount)}
+                        <div style="display: flex; align-items: center;">
+                            <div class="transaction-amount">
+                                ${t.type === 'income' ? '+' : '-'} ${this.formatCurrency(t.amount)}
+                            </div>
+                            <button class="delete-btn" onclick="app.deleteTransaction(${t.id})">🗑️</button>
                         </div>
                     </div>
                 `).join('');
+            }
+
+            deleteTransaction(id) {
+                if (confirm('Deseja realmente apagar esta transação?')) {
+                    this.transactions = this.transactions.filter(t => t.id !== id);
+                    this.saveTransactions();
+                    this.updateUI();
+                    this.speak('Transação apagada.');
+                }
             }
 
             formatCurrency(value) {
