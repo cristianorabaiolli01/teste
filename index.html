@@ -299,11 +299,11 @@
             }
 
             .voice-circle {
-                width: 100px;
-                height: 100px;
-            }
-
-            .voice-circle svg {
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        document.getElementById('voiceCircle').classList.add('active');
+                        document.getElementById('voiceStatus').textContent = '🎤 Estou ouvindo... Fale agora!';
+                    };cle svg {
                 width: 70px;
                 height: 70px;
             }
