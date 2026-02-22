@@ -5,38 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinanceAI - Seu Assistente Financeiro</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
             color: #1d1d1f;
         }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            letter-spacing: -0.5px;
-        }
-
+        
+        .container { max-width: 500px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: white; font-size: 2rem; font-weight: 600; margin-bottom: 20px; }
+        
         .balance-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -44,25 +26,11 @@
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
-
-        .balance-label {
-            font-size: 0.9rem;
-            color: #86868b;
-            margin-bottom: 8px;
-        }
-
-        .balance-amount {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1d1d1f;
-        }
-
-        main {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+        
+        .balance-label { font-size: 0.9rem; color: #86868b; margin-bottom: 8px; }
+        .balance-amount { font-size: 2.5rem; font-weight: 700; color: #1d1d1f; }
+        main { display: flex; flex-direction: column; gap: 20px; }
+        
         .voice-assistant {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -71,7 +39,7 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
-
+        
         .voice-circle {
             width: 120px;
             height: 120px;
@@ -80,42 +48,23 @@
             cursor: pointer;
             transition: transform 0.3s ease;
         }
-
-        .voice-circle:hover {
-            transform: scale(1.05);
-        }
-
-        .voice-circle.active {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
+        
+        .voice-circle:hover { transform: scale(1.05); }
+        .voice-circle.active { animation: pulse 1.5s ease-in-out infinite; }
+        
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
-
-        .pulse-ring {
-            fill: none;
-            stroke: #667eea;
-            stroke-width: 3;
-            opacity: 0.3;
-        }
-
-        .voice-circle.active .pulse-ring {
-            animation: ring-pulse 1.5s ease-out infinite;
-        }
-
+        
+        .pulse-ring { fill: none; stroke: #667eea; stroke-width: 3; opacity: 0.3; }
+        .voice-circle.active .pulse-ring { animation: ring-pulse 1.5s ease-out infinite; }
+        
         @keyframes ring-pulse {
-            0% {
-                stroke-width: 3;
-                opacity: 0.3;
-            }
-            100% {
-                stroke-width: 0;
-                opacity: 0;
-            }
+            0% { stroke-width: 3; opacity: 0.3; }
+            100% { stroke-width: 0; opacity: 0; }
         }
-
+        
         .mic-icon {
             position: absolute;
             top: 50%;
@@ -123,21 +72,25 @@
             transform: translate(-50%, -50%);
             font-size: 3rem;
         }
-
-        .voice-status {
-            font-size: 1.1rem;
-            color: #1d1d1f;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .voice-transcript {
+        
+        .voice-status { font-size: 1.1rem; color: #1d1d1f; font-weight: 500; margin-bottom: 10px; }
+        .voice-transcript { font-size: 0.9rem; color: #667eea; font-style: italic; min-height: 20px; }
+        
+        .manual-input-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
             font-size: 0.9rem;
-            color: #667eea;
-            font-style: italic;
-            min-height: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.2s ease;
+            width: 100%;
         }
-
+        
+        .manual-input-btn:hover { background: #764ba2; }
+        
         .month-selector {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -148,13 +101,9 @@
             align-items: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-
-        .month-selector h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1d1d1f;
-        }
-
+        
+        .month-selector h3 { font-size: 1.1rem; font-weight: 600; color: #1d1d1f; }
+        
         .month-btn {
             background: #667eea;
             color: white;
@@ -165,26 +114,13 @@
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
-        .month-btn:hover {
-            background: #764ba2;
-            transform: scale(1.05);
-        }
-
-        .month-btn:active {
-            transform: scale(0.95);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
+        
+        .month-btn:hover { background: #764ba2; transform: scale(1.05); }
+        .month-btn:active { transform: scale(0.95); }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -195,7 +131,7 @@
             gap: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-
+        
         .stat-icon {
             font-size: 2rem;
             width: 50px;
@@ -205,29 +141,12 @@
             justify-content: center;
             border-radius: 12px;
         }
-
-        .stat-card.income .stat-icon {
-            background: #d4f4dd;
-            color: #34c759;
-        }
-
-        .stat-card.expense .stat-icon {
-            background: #ffd4d4;
-            color: #ff3b30;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #86868b;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #1d1d1f;
-        }
-
+        
+        .stat-card.income .stat-icon { background: #d4f4dd; color: #34c759; }
+        .stat-card.expense .stat-icon { background: #ffd4d4; color: #ff3b30; }
+        .stat-label { font-size: 0.85rem; color: #86868b; margin-bottom: 4px; }
+        .stat-value { font-size: 1.2rem; font-weight: 600; color: #1d1d1f; }
+        
         .transactions-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -235,20 +154,10 @@
             padding: 25px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
-
-        .transactions-section h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #1d1d1f;
-        }
-
-        .transactions-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        
+        .transactions-section h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: #1d1d1f; }
+        .transactions-list { display: flex; flex-direction: column; gap: 12px; }
+        
         .transaction-item {
             display: flex;
             justify-content: space-between;
@@ -258,17 +167,10 @@
             border-radius: 12px;
             transition: transform 0.2s ease;
         }
-
-        .transaction-item:hover {
-            transform: translateX(5px);
-        }
-
-        .transaction-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        
+        .transaction-item:hover { transform: translateX(5px); }
+        .transaction-info { display: flex; align-items: center; gap: 12px; }
+        
         .transaction-icon {
             width: 40px;
             height: 40px;
@@ -278,39 +180,15 @@
             justify-content: center;
             font-size: 1.2rem;
         }
-
-        .transaction-item.income .transaction-icon {
-            background: #d4f4dd;
-        }
-
-        .transaction-item.expense .transaction-icon {
-            background: #ffd4d4;
-        }
-
-        .transaction-details h4 {
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-bottom: 3px;
-        }
-
-        .transaction-details p {
-            font-size: 0.8rem;
-            color: #86868b;
-        }
-
-        .transaction-amount {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .transaction-item.income .transaction-amount {
-            color: #34c759;
-        }
-
-        .transaction-item.expense .transaction-amount {
-            color: #ff3b30;
-        }
-
+        
+        .transaction-item.income .transaction-icon { background: #d4f4dd; }
+        .transaction-item.expense .transaction-icon { background: #ffd4d4; }
+        .transaction-details h4 { font-size: 0.95rem; font-weight: 500; margin-bottom: 3px; }
+        .transaction-details p { font-size: 0.8rem; color: #86868b; }
+        .transaction-amount { font-size: 1.1rem; font-weight: 600; }
+        .transaction-item.income .transaction-amount { color: #34c759; }
+        .transaction-item.expense .transaction-amount { color: #ff3b30; }
+        
         .delete-btn {
             background: #ff3b30;
             color: white;
@@ -321,120 +199,22 @@
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin-left: 10px;
         }
-
-        .delete-btn:hover {
-            background: #d32f2f;
-            transform: scale(1.1);
-        }
-
-        .delete-btn:active {
-            transform: scale(0.95);
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #86868b;
-            padding: 30px;
-            font-size: 0.95rem;
-        }
-
+        
+        .delete-btn:hover { background: #d32f2f; transform: scale(1.1); }
+        .delete-btn:active { transform: scale(0.95); }
+        .empty-state { text-align: center; color: #86868b; padding: 30px; font-size: 0.95rem; }
+        
         @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .balance-card {
-                padding: 20px;
-            }
-
-            .balance-amount {
-                font-size: 2rem;
-            }
-
-            .voice-assistant {
-                padding: 30px 20px;
-            }
-
-            .voice-circle {
-                width: 100px;
-                height: 100px;
-            }
-
-            .voice-circle svg {
-                width: 70px;
-                height: 70px;
-            }
-
-            .mic-icon {
-                font-size: 2.5rem;
-            }
-
-            .voice-status {
-                font-size: 1rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .stat-card {
-                padding: 18px;
-            }
-
-            .month-selector {
-                padding: 15px;
-            }
-
-            .month-selector h3 {
-                font-size: 1rem;
-            }
-
-            .month-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
-            }
-
-            .transactions-section {
-                padding: 20px;
-            }
-
-            .transactions-section h3 {
-                font-size: 1.1rem;
-            }
-
-            .transaction-item {
-                padding: 12px;
-                flex-wrap: wrap;
-            }
-
-            .transaction-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
-            }
-
-            .transaction-details h4 {
-                font-size: 0.9rem;
-            }
-
-            .transaction-details p {
-                font-size: 0.75rem;
-            }
-
-            .transaction-amount {
-                font-size: 1rem;
-            }
+            body { padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            .balance-card { padding: 20px; }
+            .balance-amount { font-size: 2rem; }
+            .voice-assistant { padding: 30px 20px; }
+            .voice-circle { width: 100px; height: 100px; }
+            .mic-icon { font-size: 2.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -458,6 +238,7 @@
                 </div>
                 <p class="voice-status" id="voiceStatus">Toque para falar</p>
                 <p class="voice-transcript" id="transcript"></p>
+                <button class="manual-input-btn" id="manualInputBtn">✏️ Adicionar Manualmente</button>
             </div>
 
             <div class="month-selector">
@@ -486,7 +267,7 @@
             <div class="transactions-section">
                 <h3>Transações Recentes</h3>
                 <div class="transactions-list" id="transactionsList">
-                    <p class="empty-state">Nenhuma transação ainda. Fale comigo para começar!</p>
+                    <p class="empty-state">Nenhuma transação ainda. Fale comigo ou adicione manualmente!</p>
                 </div>
             </div>
         </main>
@@ -500,12 +281,9 @@
                 this.recognition = null;
                 this.currentMonth = new Date();
                 
-                // Carregar vozes (necessário para mobile)
                 if ('speechSynthesis' in window) {
                     speechSynthesis.getVoices();
-                    window.speechSynthesis.onvoiceschanged = () => {
-                        speechSynthesis.getVoices();
-                    };
+                    window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
                 }
                 
                 this.initSpeechRecognition();
@@ -534,23 +312,13 @@
                     };
 
                     this.recognition.onerror = (event) => {
-                        console.error('Erro no reconhecimento:', event.error);
                         this.stopListening();
-                        
-                        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                            document.getElementById('voiceStatus').textContent = 'Permita o acesso ao microfone';
-                            alert('Por favor, permita o acesso ao microfone nas configurações do navegador.');
-                        } else {
-                            document.getElementById('voiceStatus').textContent = 'Erro ao ouvir. Tente novamente.';
+                        if (event.error === 'not-allowed') {
+                            alert('Permita o acesso ao microfone nas configurações.');
                         }
                     };
 
-                    this.recognition.onend = () => {
-                        this.stopListening();
-                    };
-                } else {
-                    document.getElementById('voiceStatus').textContent = 'Reconhecimento de voz não suportado';
-                    alert('Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.');
+                    this.recognition.onend = () => this.stopListening();
                 }
             }
 
@@ -572,13 +340,38 @@
                     this.currentMonth.setMonth(this.currentMonth.getMonth() + 1);
                     this.updateUI();
                 });
+
+                document.getElementById('manualInputBtn').addEventListener('click', () => {
+                    this.showManualInput();
+                });
+            }
+
+            showManualInput() {
+                const type = prompt('Tipo: digite "receita" ou "despesa"');
+                if (!type) return;
+
+                const typeNormalized = type.toLowerCase().includes('receita') ? 'income' : 'expense';
                 
-                // Interação inicial para ativar áudio no mobile
-                document.body.addEventListener('click', () => {
-                    if ('speechSynthesis' in window && speechSynthesis.paused) {
-                        speechSynthesis.resume();
-                    }
-                }, { once: true });
+                const amount = prompt('Valor (apenas números):');
+                if (!amount) return;
+
+                const amountNumber = parseFloat(amount.replace(',', '.'));
+                if (isNaN(amountNumber)) {
+                    alert('Valor inválido!');
+                    return;
+                }
+
+                const description = prompt('Descrição:') || 'Sem descrição';
+
+                this.addTransaction(typeNormalized, amountNumber, description);
+                
+                const message = `${typeNormalized === 'expense' ? 'Despesa' : 'Receita'} de ${amountNumber.toFixed(0)} reais foi adicionada`;
+                document.getElementById('voiceStatus').textContent = message;
+                this.speak(message);
+                
+                setTimeout(() => {
+                    document.getElementById('voiceStatus').textContent = 'Toque para falar';
+                }, 3000);
             }
 
             startListening() {
@@ -586,8 +379,6 @@
                     try {
                         this.recognition.start();
                     } catch (error) {
-                        console.error('Erro ao iniciar reconhecimento:', error);
-                        document.getElementById('voiceStatus').textContent = 'Erro ao iniciar. Tente novamente.';
                         this.stopListening();
                     }
                 }
@@ -600,20 +391,15 @@
             }
 
             processVoiceCommand(command) {
-                console.log('Processando comando:', command);
                 const lowerCommand = command.toLowerCase();
                 
-                // Verificar se é comando de remoção
-                if (lowerCommand.includes('remova') || lowerCommand.includes('apague') || 
-                    lowerCommand.includes('delete') || lowerCommand.includes('excluir')) {
+                if (lowerCommand.includes('remova') || lowerCommand.includes('apague')) {
                     this.handleDeleteCommand(lowerCommand);
                     return;
                 }
                 
                 const valueMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
                 const value = valueMatch ? parseFloat(valueMatch[1].replace(',', '.')) : null;
-                
-                console.log('Valor extraído:', value);
 
                 let type = null;
                 let description = '';
@@ -625,8 +411,6 @@
                            lowerCommand.includes('receita') || lowerCommand.includes('salário')) {
                     type = 'income';
                 }
-                
-                console.log('Tipo identificado:', type);
 
                 if (lowerCommand.includes('com') || lowerCommand.includes('em') || lowerCommand.includes('de')) {
                     const parts = lowerCommand.split(/com|em|de/);
@@ -635,29 +419,19 @@
                     }
                 }
 
-                if (!description) {
-                    description = command;
-                }
+                if (!description) description = command;
 
                 if (value && type) {
                     this.addTransaction(type, value, description);
                     const message = `${type === 'expense' ? 'Despesa' : 'Receita'} de ${value.toFixed(0)} reais foi adicionada`;
-                    console.log('Mensagem:', message);
-                    
-                    // Mostrar feedback visual
                     document.getElementById('voiceStatus').textContent = message;
-                    
-                    // Falar
                     this.speak(message);
                     
                     setTimeout(() => {
                         document.getElementById('voiceStatus').textContent = 'Toque para falar';
                     }, 3000);
                 } else {
-                    console.log('Comando não reconhecido');
-                    const errorMsg = 'Não entendi. Tente: gastei 50 reais com almoço';
-                    document.getElementById('voiceStatus').textContent = errorMsg;
-                    this.speak(errorMsg);
+                    this.speak('Não entendi. Tente: gastei 50 reais com almoço');
                 }
 
                 setTimeout(() => {
@@ -670,9 +444,7 @@
                 const value = valueMatch ? parseFloat(valueMatch[1].replace(',', '.')) : null;
 
                 if (!value) {
-                    // Remover última transação
                     if (this.transactions.length > 0) {
-                        const lastTransaction = this.transactions[0];
                         this.transactions.shift();
                         this.saveTransactions();
                         this.updateUI();
@@ -683,27 +455,19 @@
                     return;
                 }
 
-                // Procurar transação com o valor específico
                 const transactionIndex = this.transactions.findIndex(t => t.amount === value);
                 
                 if (transactionIndex !== -1) {
-                    const transaction = this.transactions[transactionIndex];
                     this.transactions.splice(transactionIndex, 1);
                     this.saveTransactions();
                     this.updateUI();
-                    this.speak(`Transação de ${value.toFixed(2)} reais removida.`);
+                    this.speak(`Transação de ${value.toFixed(0)} reais removida.`);
                 } else {
-                    this.speak(`Não encontrei nenhuma transação de ${value.toFixed(2)} reais.`);
+                    this.speak(`Não encontrei transação de ${value.toFixed(0)} reais.`);
                 }
-
-                setTimeout(() => {
-                    document.getElementById('transcript').textContent = '';
-                }, 3000);
             }
 
             addTransaction(type, amount, description) {
-                console.log('Adicionando transação:', type, amount, description);
-                
                 const transaction = {
                     id: Date.now(),
                     type,
@@ -716,8 +480,6 @@
                 this.transactions.unshift(transaction);
                 this.saveTransactions();
                 this.updateUI();
-                
-                console.log('Transação adicionada com sucesso');
             }
 
             saveTransactions() {
@@ -727,14 +489,8 @@
             updateUI() {
                 const monthTransactions = this.getMonthTransactions();
 
-                const income = monthTransactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0);
-
-                const expense = monthTransactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-
+                const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const expense = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
                 const balance = income - expense;
 
                 document.getElementById('totalBalance').textContent = this.formatCurrency(balance);
@@ -751,16 +507,13 @@
 
                 return this.transactions.filter(t => {
                     const transactionDate = new Date(t.timestamp);
-                    return transactionDate.getMonth() === month && 
-                           transactionDate.getFullYear() === year;
+                    return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
                 });
             }
 
             updateMonthDisplay() {
-                const months = [
-                    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-                ];
+                const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                 
                 const monthName = months[this.currentMonth.getMonth()];
                 const year = this.currentMonth.getFullYear();
@@ -787,9 +540,7 @@
                 list.innerHTML = monthTransactions.slice(0, 10).map(t => `
                     <div class="transaction-item ${t.type}">
                         <div class="transaction-info">
-                            <div class="transaction-icon">
-                                ${t.type === 'income' ? '↑' : '↓'}
-                            </div>
+                            <div class="transaction-icon">${t.type === 'income' ? '↑' : '↓'}</div>
                             <div class="transaction-details">
                                 <h4>${t.description}</h4>
                                 <p>${t.date}</p>
@@ -826,42 +577,15 @@
             }
 
             speak(text) {
-                console.log('Tentando falar:', text);
-                
-                if (!('speechSynthesis' in window)) {
-                    console.log('Speech Synthesis não suportado');
-                    return;
-                }
-                
-                try {
-                    // Cancelar qualquer fala anterior
+                if ('speechSynthesis' in window) {
                     speechSynthesis.cancel();
-                    
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'pt-BR';
                     utterance.rate = 0.9;
-                    utterance.pitch = 1.0;
-                    utterance.volume = 1.0;
-                    
-                    // Tentar encontrar voz em português
                     const voices = speechSynthesis.getVoices();
                     const ptVoice = voices.find(voice => voice.lang.includes('pt'));
-                    if (ptVoice) {
-                        utterance.voice = ptVoice;
-                    }
-                    
-                    utterance.onerror = (event) => {
-                        console.error('Erro na síntese de voz:', event);
-                    };
-                    
-                    utterance.onend = () => {
-                        console.log('Fala concluída');
-                    };
-                    
+                    if (ptVoice) utterance.voice = ptVoice;
                     speechSynthesis.speak(utterance);
-                    console.log('Comando speak executado');
-                } catch (error) {
-                    console.error('Erro ao falar:', error);
                 }
             }
         }
