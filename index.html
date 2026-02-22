@@ -499,6 +499,15 @@
                 this.isListening = false;
                 this.recognition = null;
                 this.currentMonth = new Date();
+                
+                // Carregar vozes (necessário para mobile)
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.getVoices();
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        speechSynthesis.getVoices();
+                    };
+                }
+                
                 this.initSpeechRecognition();
                 this.initEventListeners();
                 this.updateUI();
@@ -556,6 +565,13 @@
                     this.currentMonth.setMonth(this.currentMonth.getMonth() + 1);
                     this.updateUI();
                 });
+                
+                // Interação inicial para ativar áudio no mobile
+                document.body.addEventListener('click', () => {
+                    if ('speechSynthesis' in window && speechSynthesis.paused) {
+                        speechSynthesis.resume();
+                    }
+                }, { once: true });
             }
 
             startListening() {
@@ -607,7 +623,14 @@
 
                 if (value && type) {
                     this.addTransaction(type, value, description);
-                    this.speak(`Entendido! ${type === 'expense' ? 'Despesa' : 'Receita'} de ${value.toFixed(2)} reais registrada.`);
+                    const message = `${type === 'expense' ? 'Despesa' : 'Receita'} de ${value.toFixed(2).replace('.', ',')} reais foi adicionada`;
+                    this.speak(message);
+                    
+                    // Mostrar feedback visual também
+                    document.getElementById('voiceStatus').textContent = message;
+                    setTimeout(() => {
+                        document.getElementById('voiceStatus').textContent = 'Toque para falar';
+                    }, 3000);
                 } else {
                     this.speak('Desculpe, não entendi. Tente dizer algo como: gastei 50 reais com almoço.');
                 }
@@ -775,10 +798,26 @@
 
             speak(text) {
                 if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'pt-BR';
-                    utterance.rate = 1.0;
-                    speechSynthesis.speak(utterance);
+                    // Cancelar qualquer fala anterior
+                    speechSynthesis.cancel();
+                    
+                    // Pequeno delay para garantir que funcione no mobile
+                    setTimeout(() => {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'pt-BR';
+                        utterance.rate = 1.0;
+                        utterance.pitch = 1.0;
+                        utterance.volume = 1.0;
+                        
+                        // Tentar encontrar voz em português
+                        const voices = speechSynthesis.getVoices();
+                        const ptVoice = voices.find(voice => voice.lang.startsWith('pt'));
+                        if (ptVoice) {
+                            utterance.voice = ptVoice;
+                        }
+                        
+                        speechSynthesis.speak(utterance);
+                    }, 100);
                 }
             }
         }
