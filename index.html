@@ -391,47 +391,74 @@
             }
 
             processVoiceCommand(command) {
+                console.log('=== COMANDO RECEBIDO ===');
+                console.log('Original:', command);
+                
                 const lowerCommand = command.toLowerCase();
+                console.log('Minúsculo:', lowerCommand);
                 
-                if (lowerCommand.includes('remova') || lowerCommand.includes('apague')) {
-                    this.handleDeleteCommand(lowerCommand);
-                    return;
+                // SUPER SIMPLES: Pegar QUALQUER número que aparecer
+                const numbers = lowerCommand.match(/\d+/g);
+                console.log('Números encontrados:', numbers);
+                
+                let value = null;
+                if (numbers && numbers.length > 0) {
+                    value = parseFloat(numbers[0]);
+                    console.log('Valor escolhido:', value);
                 }
                 
-                const valueMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
-                const value = valueMatch ? parseFloat(valueMatch[1].replace(',', '.')) : null;
-
+                // SUPER SIMPLES: Se tem "gast", "pag", "compr" = despesa
+                // Se tem "receb", "ganh", "salari" = receita
                 let type = null;
-                let description = '';
-
-                if (lowerCommand.includes('gastei') || lowerCommand.includes('paguei') || 
-                    lowerCommand.includes('comprei') || lowerCommand.includes('despesa')) {
+                
+                if (lowerCommand.includes('gast') || lowerCommand.includes('pag') || 
+                    lowerCommand.includes('compr') || lowerCommand.includes('desp')) {
                     type = 'expense';
-                } else if (lowerCommand.includes('recebi') || lowerCommand.includes('ganhei') || 
-                           lowerCommand.includes('receita') || lowerCommand.includes('salário')) {
+                    console.log('DESPESA detectada');
+                } 
+                
+                if (lowerCommand.includes('receb') || lowerCommand.includes('ganh') || 
+                    lowerCommand.includes('salari') || lowerCommand.includes('receit') ||
+                    lowerCommand.includes('rend')) {
                     type = 'income';
+                    console.log('RECEITA detectada');
                 }
-
-                if (lowerCommand.includes('com') || lowerCommand.includes('em') || lowerCommand.includes('de')) {
-                    const parts = lowerCommand.split(/com|em|de/);
-                    if (parts.length > 1) {
-                        description = parts[1].trim();
-                    }
+                
+                // Se não detectou tipo, assume despesa se tem número
+                if (!type && value) {
+                    type = 'expense';
+                    console.log('Tipo não detectado, assumindo DESPESA');
                 }
-
-                if (!description) description = command;
-
-                if (value && type) {
-                    this.addTransaction(type, value, description);
-                    const message = `${type === 'expense' ? 'Despesa' : 'Receita'} de ${value.toFixed(0)} reais foi adicionada`;
+                
+                console.log('RESULTADO: Valor =', value, ', Tipo =', type);
+                
+                // Se tem número, adiciona!
+                if (value) {
+                    console.log('ADICIONANDO TRANSAÇÃO!');
+                    this.addTransaction(type, value, command);
+                    
+                    const message = `${type === 'expense' ? 'Despesa' : 'Receita'} de ${value} reais adicionada`;
+                    console.log('Mensagem:', message);
+                    
                     document.getElementById('voiceStatus').textContent = message;
+                    document.getElementById('voiceStatus').style.color = '#34c759';
                     this.speak(message);
                     
                     setTimeout(() => {
                         document.getElementById('voiceStatus').textContent = 'Toque para falar';
+                        document.getElementById('voiceStatus').style.color = '#1d1d1f';
                     }, 3000);
                 } else {
-                    this.speak('Não entendi. Tente: gastei 50 reais com almoço');
+                    console.log('ERRO: Nenhum número encontrado!');
+                    const errorMsg = 'Não ouvi nenhum número. Fale o valor!';
+                    document.getElementById('voiceStatus').textContent = errorMsg;
+                    document.getElementById('voiceStatus').style.color = '#ff3b30';
+                    this.speak(errorMsg);
+                    
+                    setTimeout(() => {
+                        document.getElementById('voiceStatus').textContent = 'Toque para falar';
+                        document.getElementById('voiceStatus').style.color = '#1d1d1f';
+                    }, 3000);
                 }
 
                 setTimeout(() => {
