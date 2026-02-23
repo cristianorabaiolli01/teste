@@ -92,6 +92,12 @@
             color: #2c3e50;
             letter-spacing: -1.5px;
             margin-bottom: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .balance-amount.hidden {
+            filter: blur(10px);
+            user-select: none;
         }
 
         .eye-icon {
@@ -106,10 +112,28 @@
             color: #95a5a6;
             font-size: 1.1rem;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .eye-icon:hover {
+            background: #d5dbdb;
+            transform: scale(1.1);
+        }
+
+        .eye-icon:active {
+            transform: scale(0.95);
         }
 
         main {
             padding: 25px 20px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
         }
 
         .income-expense-row {
@@ -163,6 +187,12 @@
         .income-expense-value {
             font-size: 1.25rem;
             font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .income-expense-value.hidden {
+            filter: blur(8px);
+            user-select: none;
         }
 
         .income-expense-card.income .income-expense-value {
@@ -242,6 +272,12 @@
             font-size: 0.95rem;
             color: #e74c3c;
             font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .category-value.hidden {
+            filter: blur(6px);
+            user-select: none;
         }
 
         .voice-assistant {
@@ -570,6 +606,12 @@
         .transaction-amount {
             font-size: 1rem;
             font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-amount.hidden {
+            filter: blur(6px);
+            user-select: none;
         }
 
         .delete-btn {
@@ -637,15 +679,25 @@
             color: #95a5a6;
             font-size: 0.75rem;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            padding: 5px;
+        }
+
+        .nav-item:hover {
+            color: #667eea;
         }
 
         .nav-item.active {
             color: #667eea;
         }
 
+        .nav-item.active .nav-icon {
+            transform: scale(1.1);
+        }
+
         .nav-icon {
             font-size: 1.5rem;
+            transition: transform 0.3s;
         }
 
         .add-button {
@@ -666,6 +718,50 @@
 
         .add-button:hover {
             transform: scale(1.1);
+        }
+
+        .all-transactions-page {
+            padding-bottom: 100px;
+        }
+
+        .all-transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .all-transactions-header h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #95a5a6;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -739,11 +835,13 @@
             <div class="balance-card">
                 <p class="balance-label">Saldo até o fim do mês</p>
                 <h2 class="balance-amount" id="totalBalance">R$ 0,00</h2>
-                <div class="eye-icon">👁</div>
+                <div class="eye-icon" id="eyeIcon">👁</div>
             </div>
         </header>
 
         <main>
+            <!-- Página Dashboard -->
+            <div class="page active" id="dashboardPage">
             <div class="income-expense-row">
                 <div class="income-expense-card income">
                     <div class="income-expense-icon">↑</div>
@@ -807,23 +905,45 @@
                     <p class="empty-state">Nenhuma transação ainda. Fale comigo para começar!</p>
                 </div>
             </div>
+            </div>
+
+            <!-- Página Todas as Transações -->
+            <div class="page" id="transactionsPage">
+                <div class="all-transactions-page">
+                    <div class="all-transactions-header">
+                        <h2>Todas as Transações</h2>
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">Todas</button>
+                        <button class="filter-btn" data-filter="income">Receitas</button>
+                        <button class="filter-btn" data-filter="expense">Despesas</button>
+                    </div>
+                    
+                    <div class="transactions-section">
+                        <div class="transactions-list" id="allTransactionsList">
+                            <p class="empty-state">Nenhuma transação ainda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <div class="bottom-nav">
-            <div class="nav-item active">
+            <div class="nav-item active" data-page="dashboard">
                 <span class="nav-icon">🏠</span>
                 <span>Dashboard</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" data-page="transactions">
                 <span class="nav-icon">📊</span>
                 <span>Transações</span>
             </div>
             <div class="add-button" id="addButton">+</div>
-            <div class="nav-item">
+            <div class="nav-item" data-page="budget">
                 <span class="nav-icon">💬</span>
                 <span>Orçamento</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" data-page="more">
                 <span class="nav-icon">⋯</span>
                 <span>Mais</span>
             </div>
@@ -837,6 +957,8 @@
                 this.isListening = false;
                 this.recognition = null;
                 this.selectedVoice = null;
+                this.valuesHidden = false;
+                this.currentFilter = 'all';
                 this.categories = {
                     'moradia': { name: 'Moradia', color: '#ff9f43', keywords: ['aluguel', 'condomínio', 'água', 'luz', 'energia', 'gás', 'internet', 'moradia'] },
                     'transporte': { name: 'Transporte', color: '#2ecc71', keywords: ['uber', 'taxi', 'ônibus', 'metrô', 'gasolina', 'combustível', 'transporte', 'estacionamento'] },
@@ -987,6 +1109,9 @@
                 const addButton = document.getElementById('addButton');
                 const clearAllBtn = document.getElementById('clearAllBtn');
                 const testVoiceBtn = document.getElementById('testVoiceBtn');
+                const eyeIcon = document.getElementById('eyeIcon');
+                const navItems = document.querySelectorAll('.nav-item');
+                const filterButtons = document.querySelectorAll('.filter-btn');
                 
                 if (voiceCircle) {
                     voiceCircle.addEventListener('click', () => {
@@ -1020,6 +1145,33 @@
                         this.speak('Olá! Se você está me ouvindo, o áudio está funcionando perfeitamente!');
                     });
                 }
+
+                // Toggle de visibilidade dos valores
+                if (eyeIcon) {
+                    eyeIcon.addEventListener('click', () => {
+                        this.toggleValuesVisibility();
+                    });
+                }
+
+                // Navegação entre páginas
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const page = item.getAttribute('data-page');
+                        if (page) {
+                            this.navigateToPage(page);
+                        }
+                    });
+                });
+
+                // Filtros de transações
+                filterButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        filterButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentFilter = btn.getAttribute('data-filter');
+                        this.renderAllTransactions();
+                    });
+                });
             }
 
             startListening() {
@@ -1354,6 +1506,96 @@
                     this.speak('Todas as transações foram apagadas');
                     console.log('🗑️ Todas as transações foram deletadas');
                 }
+            }
+
+            toggleValuesVisibility() {
+                this.valuesHidden = !this.valuesHidden;
+                const eyeIcon = document.getElementById('eyeIcon');
+                
+                if (this.valuesHidden) {
+                    eyeIcon.textContent = '👁️‍🗨️';
+                    document.querySelectorAll('.balance-amount, .income-expense-value, .transaction-amount, .category-value').forEach(el => {
+                        el.classList.add('hidden');
+                    });
+                } else {
+                    eyeIcon.textContent = '👁';
+                    document.querySelectorAll('.balance-amount, .income-expense-value, .transaction-amount, .category-value').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                }
+            }
+
+            navigateToPage(pageName) {
+                // Remove active de todas as páginas e nav items
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                
+                // Ativa a página e nav item corretos
+                const pageMap = {
+                    'dashboard': 'dashboardPage',
+                    'transactions': 'transactionsPage',
+                    'budget': 'dashboardPage', // Por enquanto volta pro dashboard
+                    'more': 'dashboardPage' // Por enquanto volta pro dashboard
+                };
+                
+                const pageId = pageMap[pageName];
+                const pageElement = document.getElementById(pageId);
+                const navItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                
+                if (pageElement) {
+                    pageElement.classList.add('active');
+                }
+                
+                if (navItem) {
+                    navItem.classList.add('active');
+                }
+                
+                // Se for página de transações, renderiza todas
+                if (pageName === 'transactions') {
+                    this.renderAllTransactions();
+                }
+            }
+
+            renderAllTransactions() {
+                const list = document.getElementById('allTransactionsList');
+                
+                if (this.transactions.length === 0) {
+                    list.innerHTML = '<p class="empty-state">Nenhuma transação ainda. Fale comigo para começar!</p>';
+                    return;
+                }
+
+                // Filtra transações
+                let filteredTransactions = this.transactions;
+                if (this.currentFilter !== 'all') {
+                    filteredTransactions = this.transactions.filter(t => t.type === this.currentFilter);
+                }
+
+                if (filteredTransactions.length === 0) {
+                    list.innerHTML = '<p class="empty-state">Nenhuma transação neste filtro.</p>';
+                    return;
+                }
+
+                list.innerHTML = filteredTransactions.map(t => `
+                    <div class="transaction-item ${t.type}">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                ${t.type === 'income' ? '↑' : '↓'}
+                            </div>
+                            <div class="transaction-details">
+                                <h4>${t.description}</h4>
+                                <p>${t.date}</p>
+                            </div>
+                        </div>
+                        <div class="transaction-right">
+                            <div class="transaction-amount ${this.valuesHidden ? 'hidden' : ''}">
+                                ${t.type === 'income' ? '+' : '-'} ${this.formatCurrency(t.amount)}
+                            </div>
+                            <button class="delete-btn" onclick="app.deleteTransaction(${t.id})" title="Apagar transação">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
             }
 
             formatCurrency(value) {
