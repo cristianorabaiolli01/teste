@@ -126,13 +126,17 @@
         .month-selector {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             color: #2c3e50;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
-            position: absolute;
-            right: 50px;
+            margin-top: 10px;
+        }
+
+        .month-selector:hover {
+            color: #667eea;
         }
 
         .menu-icon {
@@ -902,16 +906,16 @@
                     FinanceAI
                     <span class="app-name-small">Smart Money</span>
                 </div>
-                <div class="month-selector">
-                    <span id="currentMonth">Setembro</span>
-                    <span>▼</span>
-                </div>
                 <div class="menu-icon">⋯</div>
             </div>
             <div class="balance-card">
                 <p class="balance-label">Saldo até o fim do mês</p>
                 <h2 class="balance-amount" id="totalBalance">R$ 0,00</h2>
                 <div class="eye-icon" id="eyeIcon">👁</div>
+                <div class="month-selector">
+                    <span id="currentMonth">Setembro</span>
+                    <span>▼</span>
+                </div>
             </div>
         </header>
 
