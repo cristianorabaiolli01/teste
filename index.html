@@ -782,6 +782,10 @@
                 <p class="voice-status" id="voiceStatus">Toque para falar</p>
                 <p class="voice-transcript" id="transcript"></p>
                 
+                <button class="test-voice-btn" id="testVoiceBtn" style="margin-top: 15px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 0.9rem; cursor: pointer; width: 100%;">
+                    🔊 Testar Áudio
+                </button>
+                
                 <div class="voice-examples">
                     <h4>💡 Exemplos do que você pode falar:</h4>
                     <ul>
@@ -853,7 +857,33 @@
 
             loadVoices() {
                 // ResponsiveVoice carrega automaticamente
-                console.log('🎤 Usando ResponsiveVoice para voz mais natural');
+                console.log('🎤 Carregando sistema de voz...');
+                
+                // Força o carregamento das vozes nativas também (para fallback)
+                if ('speechSynthesis' in window) {
+                    // No mobile, as vozes só carregam após interação
+                    const loadNativeVoices = () => {
+                        const voices = speechSynthesis.getVoices();
+                        if (voices.length > 0) {
+                            console.log('🎤 Vozes nativas carregadas:', voices.filter(v => v.lang.startsWith('pt')).length);
+                        }
+                    };
+                    
+                    // Tenta carregar imediatamente
+                    loadNativeVoices();
+                    
+                    // E quando as vozes mudarem
+                    if (speechSynthesis.onvoiceschanged !== undefined) {
+                        speechSynthesis.onvoiceschanged = loadNativeVoices;
+                    }
+                }
+                
+                // Verifica ResponsiveVoice
+                if (typeof responsiveVoice !== 'undefined') {
+                    console.log('✅ ResponsiveVoice carregado');
+                } else {
+                    console.log('⚠️ ResponsiveVoice não disponível');
+                }
             }
 
             setCurrentMonth() {
@@ -956,6 +986,7 @@
                 const voiceCircle = document.getElementById('voiceCircle');
                 const addButton = document.getElementById('addButton');
                 const clearAllBtn = document.getElementById('clearAllBtn');
+                const testVoiceBtn = document.getElementById('testVoiceBtn');
                 
                 if (voiceCircle) {
                     voiceCircle.addEventListener('click', () => {
@@ -980,6 +1011,13 @@
                 if (clearAllBtn) {
                     clearAllBtn.addEventListener('click', () => {
                         this.clearAllTransactions();
+                    });
+                }
+
+                if (testVoiceBtn) {
+                    testVoiceBtn.addEventListener('click', () => {
+                        console.log('🔊 Testando áudio...');
+                        this.speak('Olá! Se você está me ouvindo, o áudio está funcionando perfeitamente!');
                     });
                 }
             }
@@ -1330,29 +1368,36 @@
             }
 
             speak(text) {
-                // Tenta usar ResponsiveVoice primeiro (voz mais natural)
-                if (typeof responsiveVoice !== 'undefined') {
+                console.log('🔊 Tentando falar:', text);
+                
+                // No mobile, precisa ser acionado por interação do usuário
+                // ResponsiveVoice funciona melhor no mobile
+                if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
                     // Cancela qualquer fala anterior
                     responsiveVoice.cancel();
                     
-                    // Usa a voz brasileira feminina do ResponsiveVoice
-                    responsiveVoice.speak(text, "Brazilian Portuguese Female", {
-                        pitch: 1,
-                        rate: 1.1,
-                        volume: 1,
-                        onstart: () => {
-                            console.log('🔊 ResponsiveVoice falando:', text);
-                        },
-                        onend: () => {
-                            console.log('✅ Fala concluída');
-                        },
-                        onerror: (error) => {
-                            console.error('❌ Erro ResponsiveVoice:', error);
-                            // Fallback para voz nativa
-                            this.speakNative(text);
-                        }
-                    });
+                    // Aguarda um pouco antes de falar
+                    setTimeout(() => {
+                        // Usa a voz brasileira feminina do ResponsiveVoice
+                        responsiveVoice.speak(text, "Brazilian Portuguese Female", {
+                            pitch: 1,
+                            rate: 1.1,
+                            volume: 1,
+                            onstart: () => {
+                                console.log('✅ ResponsiveVoice iniciou');
+                            },
+                            onend: () => {
+                                console.log('✅ ResponsiveVoice terminou');
+                            },
+                            onerror: (error) => {
+                                console.error('❌ Erro ResponsiveVoice:', error);
+                                // Fallback para voz nativa
+                                this.speakNative(text);
+                            }
+                        });
+                    }, 100);
                 } else {
+                    console.log('⚠️ ResponsiveVoice não disponível, usando voz nativa');
                     // Fallback para voz nativa do navegador
                     this.speakNative(text);
                 }
@@ -1360,36 +1405,44 @@
 
             speakNative(text) {
                 if ('speechSynthesis' in window) {
+                    console.log('🔊 Usando voz nativa do navegador');
+                    
+                    // Cancela qualquer fala anterior
                     speechSynthesis.cancel();
                     
                     setTimeout(() => {
                         const utterance = new SpeechSynthesisUtterance(text);
                         utterance.lang = 'pt-BR';
-                        utterance.rate = 1.3;
-                        utterance.pitch = 1.15;
-                        utterance.volume = 0.85;
+                        utterance.rate = 1.2;
+                        utterance.pitch = 1.1;
+                        utterance.volume = 1.0; // Volume máximo no mobile
                         
-                        if (this.selectedVoice) {
-                            utterance.voice = this.selectedVoice;
-                        } else {
-                            const voices = speechSynthesis.getVoices();
-                            const voicePriority = [
-                                v => v.lang === 'pt-BR' && v.name.includes('Google'),
-                                v => v.lang === 'pt-BR' && v.name.includes('Microsoft'),
-                                v => v.lang === 'pt-BR'
-                            ];
-                            
-                            for (const priorityFn of voicePriority) {
-                                const voice = voices.find(priorityFn);
-                                if (voice) {
-                                    utterance.voice = voice;
-                                    break;
-                                }
-                            }
+                        // Busca voz brasileira
+                        const voices = speechSynthesis.getVoices();
+                        const ptBRVoice = voices.find(v => v.lang === 'pt-BR') || 
+                                         voices.find(v => v.lang.startsWith('pt'));
+                        
+                        if (ptBRVoice) {
+                            utterance.voice = ptBRVoice;
+                            console.log('🎤 Voz selecionada:', ptBRVoice.name);
                         }
                         
+                        utterance.onstart = () => {
+                            console.log('✅ Voz nativa iniciou');
+                        };
+                        
+                        utterance.onend = () => {
+                            console.log('✅ Voz nativa terminou');
+                        };
+                        
+                        utterance.onerror = (event) => {
+                            console.error('❌ Erro na voz nativa:', event.error);
+                        };
+                        
                         speechSynthesis.speak(utterance);
-                    }, 50);
+                    }, 100);
+                } else {
+                    console.error('❌ SpeechSynthesis não suportado');
                 }
             }
         }
