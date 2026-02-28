@@ -1198,64 +1198,82 @@
             }
 
             processVoiceCommand(command) {
+                console.log('========================================');
+                console.log('🎤 COMANDO RECEBIDO:', command);
+                
                 const lowerCommand = command.toLowerCase();
                 
-                // Converte números por extenso para dígitos
-                const convertWordsToNumbers = (text) => {
-                    const numberWords = {
-                        'zero': 0, 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3,
-                        'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9,
-                        'dez': 10, 'onze': 11, 'doze': 12, 'treze': 13, 'quatorze': 14, 'catorze': 14,
-                        'quinze': 15, 'dezesseis': 16, 'dezessete': 17, 'dezoito': 18, 'dezenove': 19,
-                        'vinte': 20, 'trinta': 30, 'quarenta': 40, 'cinquenta': 50,
-                        'sessenta': 60, 'setenta': 70, 'oitenta': 80, 'noventa': 90,
-                        'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300,
-                        'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600,
-                        'setecentos': 700, 'oitocentos': 800, 'novecentos': 900,
-                        'mil': 1000, 'milhão': 1000000, 'milhao': 1000000
-                    };
-                    
-                    let result = text;
-                    
-                    // Procura por números compostos (ex: vinte e cinco)
-                    const composedPattern = /(vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+e\s+(um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove)/gi;
-                    result = result.replace(composedPattern, (match, tens, ones) => {
-                        const tensValue = numberWords[tens.toLowerCase()];
-                        const onesValue = numberWords[ones.toLowerCase()];
-                        return (tensValue + onesValue).toString();
-                    });
-                    
-                    // Substitui números simples
-                    for (const [word, num] of Object.entries(numberWords)) {
-                        const regex = new RegExp('\\b' + word + '\\b', 'gi');
-                        result = result.replace(regex, num.toString());
-                    }
-                    
-                    return result;
+                // Dicionário completo de números por extenso
+                const numberWords = {
+                    'zero': 0, 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3,
+                    'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9,
+                    'dez': 10, 'onze': 11, 'doze': 12, 'treze': 13, 'quatorze': 14, 'catorze': 14,
+                    'quinze': 15, 'dezesseis': 16, 'dezessete': 17, 'dezoito': 18, 'dezenove': 19,
+                    'vinte': 20, 'trinta': 30, 'quarenta': 40, 'cinquenta': 50,
+                    'sessenta': 60, 'setenta': 70, 'oitenta': 80, 'noventa': 90,
+                    'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300,
+                    'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600,
+                    'setecentos': 700, 'oitocentos': 800, 'novecentos': 900
                 };
-                
-                // Converte palavras para números
-                const convertedCommand = convertWordsToNumbers(lowerCommand);
-                console.log('📝 Comando original:', command);
-                console.log('🔢 Comando convertido:', convertedCommand);
                 
                 let value = null;
                 
-                // Tenta encontrar "X mil"
-                const milMatch = convertedCommand.match(/(\d+)\s*mil/i);
-                if (milMatch) {
-                    value = parseInt(milMatch[1]) * 1000;
-                    console.log('💰 Encontrei valor com MIL:', value);
+                // PASSO 1: Procura números digitados primeiro
+                const numberMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
+                if (numberMatch) {
+                    value = parseFloat(numberMatch[1].replace(',', '.'));
+                    console.log('✅ Encontrei número digitado:', value);
                 }
                 
-                // Se não encontrou, procura qualquer número
+                // PASSO 2: Se não encontrou, procura por extenso
                 if (!value) {
-                    const numberMatch = convertedCommand.match(/(\d+(?:[.,]\d+)?)/);
-                    if (numberMatch) {
-                        value = parseFloat(numberMatch[1].replace(',', '.'));
-                        console.log('💰 Encontrei número:', value);
+                    console.log('🔍 Procurando números por extenso...');
+                    
+                    // Procura "X mil" por extenso (ex: "dois mil")
+                    for (const [word, num] of Object.entries(numberWords)) {
+                        const milPattern = new RegExp('\\b' + word + '\\s+mil\\b', 'i');
+                        if (milPattern.test(lowerCommand)) {
+                            value = num * 1000;
+                            console.log(`✅ Encontrei "${word} mil" = ${value}`);
+                            break;
+                        }
+                    }
+                    
+                    // Se não encontrou "X mil", procura números compostos (ex: vinte e cinco)
+                    if (!value) {
+                        const composedPattern = /(vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+e\s+(um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove)/i;
+                        const composedMatch = lowerCommand.match(composedPattern);
+                        if (composedMatch) {
+                            const tens = numberWords[composedMatch[1]];
+                            const ones = numberWords[composedMatch[2]];
+                            value = tens + ones;
+                            console.log(`✅ Encontrei número composto "${composedMatch[0]}" = ${value}`);
+                        }
+                    }
+                    
+                    // Se ainda não encontrou, procura números simples
+                    if (!value) {
+                        for (const [word, num] of Object.entries(numberWords)) {
+                            const wordPattern = new RegExp('\\b' + word + '\\b', 'i');
+                            if (wordPattern.test(lowerCommand)) {
+                                value = num;
+                                console.log(`✅ Encontrei palavra "${word}" = ${value}`);
+                                break;
+                            }
+                        }
                     }
                 }
+                
+                // PASSO 3: Procura "X mil" com número digitado
+                if (!value) {
+                    const milMatch = lowerCommand.match(/(\d+)\s*mil/i);
+                    if (milMatch) {
+                        value = parseInt(milMatch[1]) * 1000;
+                        console.log('✅ Encontrei número + mil:', value);
+                    }
+                }
+                
+                console.log('💰 VALOR FINAL:', value);
 
                 // Detecta tipo (receita ou despesa)
                 let type = 'expense';
@@ -1263,22 +1281,23 @@
                 for (const word of incomeWords) {
                     if (lowerCommand.includes(word)) {
                         type = 'income';
-                        console.log('📥 Detectei RECEITA');
+                        console.log('📥 Tipo: RECEITA');
                         break;
                     }
                 }
                 
                 if (type === 'expense') {
-                    console.log('📤 Detectei DESPESA');
+                    console.log('� Tipo: DESPESA');
                 }
 
-                // Extrai descrição
+                // Extrai descrição (remove números e palavras comuns)
                 let description = command
                     .replace(/\d+\s*mil/gi, '')
                     .replace(/\d+(?:[.,]\d+)?/g, '')
                     .replace(/reais?/gi, '')
                     .replace(/r\$/gi, '')
-                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|com|em|para|um|uma|o|a|zero|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento)\b/gi, '')
+                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|com|em|para|um|uma|o|a|e)\b/gi, '')
+                    .replace(/\b(zero|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento|duzentos|trezentos|quatrocentos|quinhentos|seiscentos|setecentos|oitocentos|novecentos|mil)\b/gi, '')
                     .trim()
                     .replace(/\s+/g, ' ');
                 
@@ -1287,15 +1306,15 @@
                 }
                 
                 console.log('📝 Descrição:', description);
-                console.log('💵 Valor final:', value);
+                console.log('========================================');
 
                 if (value && value > 0) {
                     this.addTransaction(type, value, description);
                     
                     const mensagens = [
-                        `Registrado ${this.formatCurrency(value)} em ${description}`,
-                        `Pronto! ${this.formatCurrency(value)} anotado em ${description}`,
-                        `Feito! ${this.formatCurrency(value)} de ${description}`
+                        `Registrado! ${this.formatCurrency(value)} em ${description}`,
+                        `Pronto! Anotei ${this.formatCurrency(value)} de ${description}`,
+                        `Feito! ${this.formatCurrency(value)} registrado em ${description}`
                     ];
                     const msg = mensagens[Math.floor(Math.random() * mensagens.length)];
                     this.speak(msg);
@@ -1303,8 +1322,8 @@
                     document.getElementById('voiceStatus').textContent = '✅ Registrado!';
                     document.getElementById('transcript').textContent = '';
                 } else {
-                    console.log('❌ Valor não encontrado');
-                    this.speak('Não entendi o valor. Pode repetir com o número?');
+                    console.log('❌ VALOR NÃO ENCONTRADO OU INVÁLIDO');
+                    this.speak('Não consegui entender o valor. Pode repetir falando o número?');
                     document.getElementById('voiceStatus').textContent = '❌ Valor não identificado';
                 }
 
