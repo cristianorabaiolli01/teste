@@ -951,7 +951,6 @@
                 this.setCurrentMonth();
                 this.loadVoices();
             }
-
             loadVoices() {
                 const loadVoices = () => {
                     this.voices = this.synth.getVoices();
@@ -960,27 +959,26 @@
                                         this.voices[0];
                     
                     console.log('🎤 Vozes carregadas:', this.voices.length);
+                    if (this.selectedVoice) {
+                        console.log('✅ Voz selecionada:', this.selectedVoice.name);
+                    }
                 };
                 
                 loadVoices();
                 if (this.synth.onvoiceschanged !== undefined) {
                     this.synth.onvoiceschanged = loadVoices;
                 }
-                
-                // Tenta tocar boas-vindas após 1 segundo
-                setTimeout(() => {
-                    this.playWelcomeMessage();
-                }, 1000);
             }
 
             // ===== MENSAGEM DE BOAS-VINDAS AUTOMÁTICA =====
             playWelcomeMessage() {
+                console.log('👋 playWelcomeMessage() chamado');
+                console.log('welcomePlayed:', this.welcomePlayed);
+                
                 if (this.welcomePlayed) {
                     console.log('⚠️ Boas-vindas já foi tocada');
                     return;
                 }
-                
-                console.log('👋 Tentando tocar boas-vindas...');
                 
                 const hour = new Date().getHours();
                 let greeting = '';
@@ -1016,38 +1014,45 @@
                     }
                 }
                 
-                console.log('📢 Mensagem:', message);
+                console.log('📢 Mensagem completa:', message);
+                console.log('🔊 Tentando falar agora...');
                 
+                // Marca como tocada ANTES de falar
+                this.welcomePlayed = true;
+                
+                // Cancela qualquer fala anterior
                 this.synth.cancel();
                 
-                setTimeout(() => {
-                    const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.lang = 'pt-BR';
-                    utterance.rate = 1.1;
-                    utterance.pitch = 1;
-                    utterance.volume = 1;
+                // Cria a fala
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
 
-                    if (this.selectedVoice) {
-                        utterance.voice = this.selectedVoice;
-                        console.log('🎤 Usando voz:', this.selectedVoice.name);
-                    }
+                if (this.selectedVoice) {
+                    utterance.voice = this.selectedVoice;
+                    console.log('🎤 Usando voz:', this.selectedVoice.name);
+                } else {
+                    console.log('⚠️ Nenhuma voz selecionada, usando padrão');
+                }
 
-                    utterance.onstart = () => {
-                        console.log('🔊 Falando mensagem de boas-vindas');
-                        this.welcomePlayed = true;
-                    };
+                utterance.onstart = () => {
+                    console.log('✅ ÁUDIO INICIOU!');
+                };
 
-                    utterance.onend = () => {
-                        console.log('✅ Boas-vindas concluída');
-                    };
+                utterance.onend = () => {
+                    console.log('✅ ÁUDIO TERMINOU!');
+                };
 
-                    utterance.onerror = (event) => {
-                        console.error('❌ Erro na fala de boas-vindas:', event.error);
-                    };
+                utterance.onerror = (event) => {
+                    console.error('❌ ERRO NO ÁUDIO:', event.error);
+                    console.error('Detalhes do erro:', event);
+                };
 
-                    this.synth.speak(utterance);
-                    console.log('🎵 Comando speak enviado');
-                }, 200);
+                // Fala IMEDIATAMENTE
+                this.synth.speak(utterance);
+                console.log('🎵 Comando synth.speak() executado');
             }
 
             setCurrentMonth() {
@@ -1120,7 +1125,7 @@
                 
                 if (activateBtn && welcomeOverlay) {
                     activateBtn.addEventListener('click', () => {
-                        console.log('🎵 Usuário ativou o áudio');
+                        console.log('🎵 Usuário clicou para ativar áudio');
                         
                         // Remove o overlay com animação
                         welcomeOverlay.style.opacity = '0';
@@ -1128,10 +1133,17 @@
                             welcomeOverlay.style.display = 'none';
                         }, 500);
                         
-                        // Toca a mensagem de boas-vindas
-                        setTimeout(() => {
-                            this.playWelcomeMessage();
-                        }, 600);
+                        // Força carregar vozes novamente
+                        this.voices = this.synth.getVoices();
+                        this.selectedVoice = this.voices.find(v => v.lang.includes('pt-BR')) || 
+                                            this.voices.find(v => v.lang.includes('pt')) ||
+                                            this.voices[0];
+                        
+                        console.log('🎤 Vozes disponíveis:', this.voices.length);
+                        console.log('🎤 Voz selecionada:', this.selectedVoice ? this.selectedVoice.name : 'Nenhuma');
+                        
+                        // Toca a mensagem de boas-vindas IMEDIATAMENTE
+                        this.playWelcomeMessage();
                     });
                 }
                 
