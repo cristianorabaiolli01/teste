@@ -468,30 +468,6 @@
             backdrop-filter: blur(5px);
         }
 
-        .test-voice-btn {
-            background: white;
-            color: var(--primary);
-            border: none;
-            border-radius: 30px;
-            padding: 14px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .test-voice-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .test-voice-btn:active {
-            transform: translateY(0);
-        }
-
         .voice-examples {
             width: 100%;
         }
@@ -840,10 +816,6 @@
                         </div>
                         <div class="voice-status" id="voiceStatus">Toque para falar</div>
                         <div class="voice-transcript" id="transcript"></div>
-                        
-                        <button class="test-voice-btn" id="testVoiceBtn">
-                            🔊 Testar Áudio
-                        </button>
 
                         <div class="voice-examples">
                             <h4>Comandos de voz</h4>
@@ -940,7 +912,7 @@
                 this.voices = [];
                 this.selectedVoice = null;
                 this.processingCommand = false;
-                this.welcomePlayed = false; // Flag para controlar se a mensagem de boas-vindas já foi reproduzida
+                this.welcomePlayed = false;
                 
                 this.categories = {
                     'moradia': { name: 'Moradia', color: '#6C5CE7', keywords: ['aluguel', 'condomínio', 'água', 'luz', 'energia', 'gás', 'internet', 'moradia'] },
@@ -956,27 +928,6 @@
                 this.updateUI();
                 this.setCurrentMonth();
                 this.loadVoices();
-                
-                // Toca a mensagem de boas-vindas automaticamente após carregar
-                setTimeout(() => {
-                    this.playWelcomeMessage();
-                }, 1000);
-            }
-
-            // ===== NOVO MÉTODO PARA MENSAGEM DE BOAS-VINDAS =====
-            playWelcomeMessage() {
-                // Verifica se as vozes já foram carregadas
-                if (this.voices.length > 0) {
-                    this.speak('Olá! Bem-vindo ao FinanceAI. Toque no microfone e fale um comando, como "gastei 50 reais com almoço".');
-                    this.welcomePlayed = true;
-                } else {
-                    // Se as vozes ainda não carregaram, tenta novamente após 500ms
-                    setTimeout(() => {
-                        if (!this.welcomePlayed) {
-                            this.playWelcomeMessage();
-                        }
-                    }, 500);
-                }
             }
 
             loadVoices() {
@@ -986,9 +937,11 @@
                                         this.voices.find(v => v.lang.includes('pt')) ||
                                         this.voices[0];
                     
-                    // Se a mensagem de boas-vindas ainda não foi reproduzida, reproduz agora
+                    // Toca a mensagem de boas-vindas automaticamente assim que as vozes carregarem
                     if (!this.welcomePlayed && this.voices.length > 0) {
-                        this.playWelcomeMessage();
+                        setTimeout(() => {
+                            this.playWelcomeMessage();
+                        }, 500);
                     }
                 };
                 
@@ -996,6 +949,48 @@
                 if (this.synth.onvoiceschanged !== undefined) {
                     this.synth.onvoiceschanged = loadVoices;
                 }
+            }
+
+            // ===== MENSAGEM DE BOAS-VINDAS AUTOMÁTICA =====
+            playWelcomeMessage() {
+                if (this.welcomePlayed) return;
+                
+                const mensagem = "Olá! Bem-vindo ao FinanceAI. Toque no microfone e fale um comando, como gastei 50 reais com almoço.";
+                
+                this.synth.cancel();
+                
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(mensagem);
+                    utterance.lang = 'pt-BR';
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1;
+                    utterance.volume = 1;
+
+                    if (this.selectedVoice) {
+                        utterance.voice = this.selectedVoice;
+                    }
+
+                    utterance.onstart = () => {
+                        console.log('🔊 Falando mensagem de boas-vindas');
+                        this.welcomePlayed = true;
+                    };
+
+                    utterance.onend = () => {
+                        console.log('✅ Boas-vindas concluída');
+                    };
+
+                    utterance.onerror = (event) => {
+                        console.error('❌ Erro na fala de boas-vindas:', event);
+                        // Tenta novamente após 1 segundo em caso de erro
+                        setTimeout(() => {
+                            if (!this.welcomePlayed) {
+                                this.playWelcomeMessage();
+                            }
+                        }, 1000);
+                    };
+
+                    this.synth.speak(utterance);
+                }, 100);
             }
 
             setCurrentMonth() {
@@ -1066,10 +1061,6 @@
                 document.getElementById('addButton')?.addEventListener('click', () => this.startListening());
                 document.getElementById('clearAllBtn')?.addEventListener('click', () => this.clearAllTransactions());
                 
-                document.getElementById('testVoiceBtn')?.addEventListener('click', () => {
-                    this.speak('Olá! Teste de áudio funcionando perfeitamente!');
-                });
-
                 document.getElementById('eyeIcon')?.addEventListener('click', () => this.toggleValuesVisibility());
 
                 document.querySelectorAll('.nav-item').forEach(item => {
