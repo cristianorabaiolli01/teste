@@ -1200,62 +1200,102 @@
             processVoiceCommand(command) {
                 const lowerCommand = command.toLowerCase();
                 
+                // Converte números por extenso para dígitos
+                const convertWordsToNumbers = (text) => {
+                    const numberWords = {
+                        'zero': 0, 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3,
+                        'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9,
+                        'dez': 10, 'onze': 11, 'doze': 12, 'treze': 13, 'quatorze': 14, 'catorze': 14,
+                        'quinze': 15, 'dezesseis': 16, 'dezessete': 17, 'dezoito': 18, 'dezenove': 19,
+                        'vinte': 20, 'trinta': 30, 'quarenta': 40, 'cinquenta': 50,
+                        'sessenta': 60, 'setenta': 70, 'oitenta': 80, 'noventa': 90,
+                        'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300,
+                        'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600,
+                        'setecentos': 700, 'oitocentos': 800, 'novecentos': 900,
+                        'mil': 1000, 'milhão': 1000000, 'milhao': 1000000
+                    };
+                    
+                    let result = text;
+                    
+                    // Procura por números compostos (ex: vinte e cinco)
+                    const composedPattern = /(vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+e\s+(um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove)/gi;
+                    result = result.replace(composedPattern, (match, tens, ones) => {
+                        const tensValue = numberWords[tens.toLowerCase()];
+                        const onesValue = numberWords[ones.toLowerCase()];
+                        return (tensValue + onesValue).toString();
+                    });
+                    
+                    // Substitui números simples
+                    for (const [word, num] of Object.entries(numberWords)) {
+                        const regex = new RegExp('\\b' + word + '\\b', 'gi');
+                        result = result.replace(regex, num.toString());
+                    }
+                    
+                    return result;
+                };
+                
+                // Converte palavras para números
+                const convertedCommand = convertWordsToNumbers(lowerCommand);
+                console.log('📝 Comando original:', command);
+                console.log('🔢 Comando convertido:', convertedCommand);
+                
                 let value = null;
                 
-                const milMatch = lowerCommand.match(/(\d+)\s*mil/i);
+                // Tenta encontrar "X mil"
+                const milMatch = convertedCommand.match(/(\d+)\s*mil/i);
                 if (milMatch) {
                     value = parseInt(milMatch[1]) * 1000;
+                    console.log('💰 Encontrei valor com MIL:', value);
                 }
                 
+                // Se não encontrou, procura qualquer número
                 if (!value) {
-                    const numberMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
+                    const numberMatch = convertedCommand.match(/(\d+(?:[.,]\d+)?)/);
                     if (numberMatch) {
                         value = parseFloat(numberMatch[1].replace(',', '.'));
+                        console.log('💰 Encontrei número:', value);
                     }
                 }
 
-                if (!value) {
-                    const numberWords = {
-                        'cinquenta': 50, 'cem': 100, 'duzentos': 200, 'trezentos': 300,
-                        'quatrocentos': 400, 'quinhentos': 500, 'mil': 1000
-                    };
-                    for (const [word, num] of Object.entries(numberWords)) {
-                        if (lowerCommand.includes(word)) {
-                            value = num;
-                            break;
-                        }
-                    }
-                }
-
+                // Detecta tipo (receita ou despesa)
                 let type = 'expense';
                 const incomeWords = ['recebi', 'ganhei', 'receita', 'salário', 'vendi', 'lucrei', 'recebido'];
                 for (const word of incomeWords) {
                     if (lowerCommand.includes(word)) {
                         type = 'income';
+                        console.log('📥 Detectei RECEITA');
                         break;
                     }
                 }
+                
+                if (type === 'expense') {
+                    console.log('📤 Detectei DESPESA');
+                }
 
+                // Extrai descrição
                 let description = command
                     .replace(/\d+\s*mil/gi, '')
                     .replace(/\d+(?:[.,]\d+)?/g, '')
                     .replace(/reais?/gi, '')
                     .replace(/r\$/gi, '')
-                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|com|em|para|um|uma|o|a)\b/gi, '')
+                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|com|em|para|um|uma|o|a|zero|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento)\b/gi, '')
                     .trim()
                     .replace(/\s+/g, ' ');
                 
                 if (!description || description.length < 2) {
                     description = type === 'expense' ? 'Despesa' : 'Receita';
                 }
+                
+                console.log('📝 Descrição:', description);
+                console.log('💵 Valor final:', value);
 
                 if (value && value > 0) {
                     this.addTransaction(type, value, description);
                     
                     const mensagens = [
-                        `Registrado ${this.formatCurrency(value)}`,
-                        `Pronto! ${this.formatCurrency(value)} anotado`,
-                        `Feito! ${this.formatCurrency(value)}`
+                        `Registrado ${this.formatCurrency(value)} em ${description}`,
+                        `Pronto! ${this.formatCurrency(value)} anotado em ${description}`,
+                        `Feito! ${this.formatCurrency(value)} de ${description}`
                     ];
                     const msg = mensagens[Math.floor(Math.random() * mensagens.length)];
                     this.speak(msg);
@@ -1263,14 +1303,16 @@
                     document.getElementById('voiceStatus').textContent = '✅ Registrado!';
                     document.getElementById('transcript').textContent = '';
                 } else {
-                    this.speak('Não entendi o valor. Pode repetir?');
+                    console.log('❌ Valor não encontrado');
+                    this.speak('Não entendi o valor. Pode repetir com o número?');
                     document.getElementById('voiceStatus').textContent = '❌ Valor não identificado';
                 }
 
                 setTimeout(() => {
                     document.getElementById('transcript').textContent = '';
+                    document.getElementById('voiceStatus').textContent = 'Toque para falar';
                     this.processingCommand = false;
-                }, 2000);
+                }, 3000);
             }
 
             speak(text) {
