@@ -1147,9 +1147,20 @@
                     });
                 }
                 
+                // Botão limpar tudo
+                const clearBtn = document.getElementById('clearAllBtn');
+                if (clearBtn) {
+                    console.log('✅ Botão Limpar Tudo encontrado');
+                    clearBtn.addEventListener('click', () => {
+                        console.log('🗑️ Botão Limpar Tudo clicado');
+                        this.clearAllTransactions();
+                    });
+                } else {
+                    console.error('❌ Botão Limpar Tudo NÃO encontrado');
+                }
+                
                 document.getElementById('voiceCircle')?.addEventListener('click', () => this.startListening());
                 document.getElementById('addButton')?.addEventListener('click', () => this.startListening());
-                document.getElementById('clearAllBtn')?.addEventListener('click', () => this.clearAllTransactions());
                 
                 document.getElementById('eyeIcon')?.addEventListener('click', () => this.toggleValuesVisibility());
 
@@ -1533,17 +1544,25 @@
             }
 
             clearAllTransactions() {
+                console.log('🗑️ clearAllTransactions chamado');
+                console.log('Número de transações:', this.transactions.length);
+                
                 if (this.transactions.length === 0) {
+                    alert('Não há transações para apagar');
                     this.speak('Não há transações para apagar');
                     return;
                 }
                 
-                if (confirm(`Apagar todas as ${this.transactions.length} transações?`)) {
+                if (confirm(`Tem certeza que deseja apagar todas as ${this.transactions.length} transações? Esta ação não pode ser desfeita!`)) {
+                    console.log('✅ Usuário confirmou exclusão');
                     this.transactions = [];
                     this.saveTransactions();
                     this.updateUI();
                     this.renderAllTransactions();
                     this.speak('Todas as transações foram apagadas');
+                    console.log('✅ Transações apagadas com sucesso');
+                } else {
+                    console.log('❌ Usuário cancelou exclusão');
                 }
             }
 
