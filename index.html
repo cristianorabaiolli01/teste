@@ -398,7 +398,7 @@
             -webkit-filter: blur(6px);
         }
 
-        /* ===== ASSISTENTE DE VOZ - CORRIGIDO ===== */
+        /* ===== ASSISTENTE DE VOZ ===== */
         .voice-section {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             border-radius: 28px;
@@ -939,7 +939,8 @@
                 this.synth = window.speechSynthesis;
                 this.voices = [];
                 this.selectedVoice = null;
-                this.processingCommand = false; // Flag para evitar duplicatas
+                this.processingCommand = false;
+                this.welcomePlayed = false; // Flag para controlar se a mensagem de boas-vindas já foi reproduzida
                 
                 this.categories = {
                     'moradia': { name: 'Moradia', color: '#6C5CE7', keywords: ['aluguel', 'condomínio', 'água', 'luz', 'energia', 'gás', 'internet', 'moradia'] },
@@ -955,6 +956,27 @@
                 this.updateUI();
                 this.setCurrentMonth();
                 this.loadVoices();
+                
+                // Toca a mensagem de boas-vindas automaticamente após carregar
+                setTimeout(() => {
+                    this.playWelcomeMessage();
+                }, 1000);
+            }
+
+            // ===== NOVO MÉTODO PARA MENSAGEM DE BOAS-VINDAS =====
+            playWelcomeMessage() {
+                // Verifica se as vozes já foram carregadas
+                if (this.voices.length > 0) {
+                    this.speak('Olá! Bem-vindo ao FinanceAI. Toque no microfone e fale um comando, como "gastei 50 reais com almoço".');
+                    this.welcomePlayed = true;
+                } else {
+                    // Se as vozes ainda não carregaram, tenta novamente após 500ms
+                    setTimeout(() => {
+                        if (!this.welcomePlayed) {
+                            this.playWelcomeMessage();
+                        }
+                    }, 500);
+                }
             }
 
             loadVoices() {
@@ -963,6 +985,11 @@
                     this.selectedVoice = this.voices.find(v => v.lang.includes('pt-BR')) || 
                                         this.voices.find(v => v.lang.includes('pt')) ||
                                         this.voices[0];
+                    
+                    // Se a mensagem de boas-vindas ainda não foi reproduzida, reproduz agora
+                    if (!this.welcomePlayed && this.voices.length > 0) {
+                        this.playWelcomeMessage();
+                    }
                 };
                 
                 loadVoices();
@@ -978,14 +1005,13 @@
                 document.getElementById('currentMonth').textContent = months[currentMonth];
             }
 
-            // ===== RECONHECIMENTO DE VOZ CORRIGIDO =====
             initSpeechRecognition() {
                 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     this.recognition = new SpeechRecognition();
                     this.recognition.lang = 'pt-BR';
                     this.recognition.continuous = false;
-                    this.recognition.interimResults = false; // IMPORTANTE: só pega resultado final
+                    this.recognition.interimResults = false;
                     this.recognition.maxAlternatives = 1;
 
                     this.recognition.onstart = () => {
@@ -998,7 +1024,6 @@
                     };
 
                     this.recognition.onresult = (event) => {
-                        // Impede processamento duplicado
                         if (this.processingCommand) return;
                         this.processingCommand = true;
                         
@@ -1080,20 +1105,16 @@
                 }
             }
 
-            // ===== PROCESSAMENTO DE COMANDO CORRIGIDO =====
             processVoiceCommand(command) {
                 const lowerCommand = command.toLowerCase();
                 
-                // Extrair valor
                 let value = null;
                 
-                // Procura por "mil"
                 const milMatch = lowerCommand.match(/(\d+)\s*mil/i);
                 if (milMatch) {
                     value = parseInt(milMatch[1]) * 1000;
                 }
                 
-                // Procura por números normais
                 if (!value) {
                     const numberMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
                     if (numberMatch) {
@@ -1101,7 +1122,6 @@
                     }
                 }
 
-                // Se ainda não encontrou, tenta palavras como "cinquenta", "cem", etc
                 if (!value) {
                     const numberWords = {
                         'cinquenta': 50, 'cem': 100, 'duzentos': 200, 'trezentos': 300,
@@ -1115,7 +1135,6 @@
                     }
                 }
 
-                // Detectar tipo (receita ou despesa)
                 let type = 'expense';
                 const incomeWords = ['recebi', 'ganhei', 'receita', 'salário', 'vendi', 'lucrei', 'recebido'];
                 for (const word of incomeWords) {
@@ -1125,7 +1144,6 @@
                     }
                 }
 
-                // Extrair descrição
                 let description = command
                     .replace(/\d+\s*mil/gi, '')
                     .replace(/\d+(?:[.,]\d+)?/g, '')
@@ -1142,7 +1160,6 @@
                 if (value && value > 0) {
                     this.addTransaction(type, value, description);
                     
-                    // Feedback de voz
                     const mensagens = [
                         `Registrado ${this.formatCurrency(value)}`,
                         `Pronto! ${this.formatCurrency(value)} anotado`,
@@ -1158,7 +1175,6 @@
                     document.getElementById('voiceStatus').textContent = '❌ Valor não identificado';
                 }
 
-                // Reset da flag após processamento
                 setTimeout(() => {
                     document.getElementById('transcript').textContent = '';
                     this.processingCommand = false;
