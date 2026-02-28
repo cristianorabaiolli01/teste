@@ -742,6 +742,28 @@
     </style>
 </head>
 <body>
+    <!-- OVERLAY DE BOAS-VINDAS -->
+    <div id="welcomeOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(102, 126, 234, 0.95); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.5s ease;">
+        <div style="text-align: center; color: white; padding: 40px; max-width: 400px;">
+            <div style="font-size: 4rem; margin-bottom: 20px; animation: bounce 1s infinite;">🎤</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 15px; font-weight: 600;">Bem-vindo ao FinanceAI!</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 30px; opacity: 0.9;">Toque no botão abaixo para ativar o assistente de voz</p>
+            <button id="activateVoiceBtn" style="padding: 15px 40px; font-size: 1.1rem; background: white; color: #667eea; border: none; border-radius: 50px; cursor: pointer; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                🔊 Ativar Áudio
+            </button>
+        </div>
+    </div>
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        #activateVoiceBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        }
+    </style>
+    
     <div class="app-container">
         <!-- HEADER MINIMALISTA -->
         <header class="app-header">
@@ -937,30 +959,69 @@
                                         this.voices.find(v => v.lang.includes('pt')) ||
                                         this.voices[0];
                     
-                    // Toca a mensagem de boas-vindas automaticamente assim que as vozes carregarem
-                    if (!this.welcomePlayed && this.voices.length > 0) {
-                        setTimeout(() => {
-                            this.playWelcomeMessage();
-                        }, 500);
-                    }
+                    console.log('🎤 Vozes carregadas:', this.voices.length);
                 };
                 
                 loadVoices();
                 if (this.synth.onvoiceschanged !== undefined) {
                     this.synth.onvoiceschanged = loadVoices;
                 }
+                
+                // Tenta tocar boas-vindas após 1 segundo
+                setTimeout(() => {
+                    this.playWelcomeMessage();
+                }, 1000);
             }
 
             // ===== MENSAGEM DE BOAS-VINDAS AUTOMÁTICA =====
             playWelcomeMessage() {
-                if (this.welcomePlayed) return;
+                if (this.welcomePlayed) {
+                    console.log('⚠️ Boas-vindas já foi tocada');
+                    return;
+                }
                 
-                const mensagem = "Olá! Bem-vindo ao FinanceAI. Toque no microfone e fale um comando, como gastei 50 reais com almoço.";
+                console.log('👋 Tentando tocar boas-vindas...');
+                
+                const hour = new Date().getHours();
+                let greeting = '';
+                
+                if (hour >= 5 && hour < 12) {
+                    greeting = 'Bom dia';
+                } else if (hour >= 12 && hour < 18) {
+                    greeting = 'Boa tarde';
+                } else {
+                    greeting = 'Boa noite';
+                }
+                
+                const balance = this.transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0) -
+                    this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                let message = `${greeting}! Bem-vindo ao Finance AI, seu assistente financeiro inteligente. `;
+                
+                if (this.transactions.length === 0) {
+                    message += 'Você ainda não tem transações registradas. Toque no botão do microfone para começar a registrar suas finanças por voz!';
+                } else {
+                    message += `Você tem ${this.transactions.length} transação${this.transactions.length > 1 ? 'ões' : ''} registrada${this.transactions.length > 1 ? 's' : ''}. `;
+                    
+                    if (balance > 0) {
+                        message += `Seu saldo atual é positivo em ${this.formatCurrency(balance)}. Continue assim!`;
+                    } else if (balance < 0) {
+                        message += `Atenção! Seu saldo está negativo em ${this.formatCurrency(Math.abs(balance))}. Vamos controlar melhor os gastos?`;
+                    } else {
+                        message += 'Suas receitas e despesas estão equilibradas.';
+                    }
+                }
+                
+                console.log('📢 Mensagem:', message);
                 
                 this.synth.cancel();
                 
                 setTimeout(() => {
-                    const utterance = new SpeechSynthesisUtterance(mensagem);
+                    const utterance = new SpeechSynthesisUtterance(message);
                     utterance.lang = 'pt-BR';
                     utterance.rate = 1.1;
                     utterance.pitch = 1;
@@ -968,6 +1029,7 @@
 
                     if (this.selectedVoice) {
                         utterance.voice = this.selectedVoice;
+                        console.log('🎤 Usando voz:', this.selectedVoice.name);
                     }
 
                     utterance.onstart = () => {
@@ -980,17 +1042,12 @@
                     };
 
                     utterance.onerror = (event) => {
-                        console.error('❌ Erro na fala de boas-vindas:', event);
-                        // Tenta novamente após 1 segundo em caso de erro
-                        setTimeout(() => {
-                            if (!this.welcomePlayed) {
-                                this.playWelcomeMessage();
-                            }
-                        }, 1000);
+                        console.error('❌ Erro na fala de boas-vindas:', event.error);
                     };
 
                     this.synth.speak(utterance);
-                }, 100);
+                    console.log('🎵 Comando speak enviado');
+                }, 200);
             }
 
             setCurrentMonth() {
@@ -1057,17 +1114,26 @@
             }
 
             initEventListeners() {
-                // Toca boas-vindas na primeira interação (caso navegador bloqueie autoplay)
-                const playWelcomeOnce = () => {
-                    if (!this.welcomePlayed) {
-                        this.playWelcomeMessage();
-                    }
-                    document.removeEventListener('click', playWelcomeOnce);
-                    document.removeEventListener('touchstart', playWelcomeOnce);
-                };
+                // Botão de ativar áudio do overlay
+                const activateBtn = document.getElementById('activateVoiceBtn');
+                const welcomeOverlay = document.getElementById('welcomeOverlay');
                 
-                document.addEventListener('click', playWelcomeOnce, { once: true });
-                document.addEventListener('touchstart', playWelcomeOnce, { once: true });
+                if (activateBtn && welcomeOverlay) {
+                    activateBtn.addEventListener('click', () => {
+                        console.log('🎵 Usuário ativou o áudio');
+                        
+                        // Remove o overlay com animação
+                        welcomeOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            welcomeOverlay.style.display = 'none';
+                        }, 500);
+                        
+                        // Toca a mensagem de boas-vindas
+                        setTimeout(() => {
+                            this.playWelcomeMessage();
+                        }, 600);
+                    });
+                }
                 
                 document.getElementById('voiceCircle')?.addEventListener('click', () => this.startListening());
                 document.getElementById('addButton')?.addEventListener('click', () => this.startListening());
