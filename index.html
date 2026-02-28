@@ -1057,6 +1057,18 @@
             }
 
             initEventListeners() {
+                // Toca boas-vindas na primeira interação (caso navegador bloqueie autoplay)
+                const playWelcomeOnce = () => {
+                    if (!this.welcomePlayed) {
+                        this.playWelcomeMessage();
+                    }
+                    document.removeEventListener('click', playWelcomeOnce);
+                    document.removeEventListener('touchstart', playWelcomeOnce);
+                };
+                
+                document.addEventListener('click', playWelcomeOnce, { once: true });
+                document.addEventListener('touchstart', playWelcomeOnce, { once: true });
+                
                 document.getElementById('voiceCircle')?.addEventListener('click', () => this.startListening());
                 document.getElementById('addButton')?.addEventListener('click', () => this.startListening());
                 document.getElementById('clearAllBtn')?.addEventListener('click', () => this.clearAllTransactions());
@@ -1205,6 +1217,49 @@
 
                     this.synth.speak(utterance);
                 }, 100);
+            }
+
+            playWelcomeMessage() {
+                if (this.welcomePlayed) return;
+                
+                this.welcomePlayed = true;
+                
+                const hour = new Date().getHours();
+                let greeting = '';
+                
+                if (hour >= 5 && hour < 12) {
+                    greeting = 'Bom dia';
+                } else if (hour >= 12 && hour < 18) {
+                    greeting = 'Boa tarde';
+                } else {
+                    greeting = 'Boa noite';
+                }
+                
+                const balance = this.transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0) -
+                    this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                let message = `${greeting}! Bem-vindo ao Finance AI, seu assistente financeiro inteligente. `;
+                
+                if (this.transactions.length === 0) {
+                    message += 'Você ainda não tem transações registradas. Toque no botão do microfone ou no botão de adicionar para começar a registrar suas finanças por voz!';
+                } else {
+                    message += `Você tem ${this.transactions.length} transação${this.transactions.length > 1 ? 'ões' : ''} registrada${this.transactions.length > 1 ? 's' : ''}. `;
+                    
+                    if (balance > 0) {
+                        message += `Seu saldo atual é positivo em ${this.formatCurrency(balance)}. Continue assim!`;
+                    } else if (balance < 0) {
+                        message += `Atenção! Seu saldo está negativo em ${this.formatCurrency(Math.abs(balance))}. Vamos controlar melhor os gastos?`;
+                    } else {
+                        message += 'Suas receitas e despesas estão equilibradas.';
+                    }
+                }
+                
+                console.log('👋 Mensagem de boas-vindas:', message);
+                this.speak(message);
             }
 
             addTransaction(type, amount, description) {
