@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ÆSIR • cinza</title>
+    <title>ÆSIR • cinza + análise</title>
     <style>
         /* ===== RESET — cinza com detalhes pretos ===== */
         * {
@@ -43,6 +43,8 @@
             background: var(--graphite);
             border: 1px solid var(--iron);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+            position: relative;
+            min-height: 700px;
         }
 
         /* ===== tipografia utilitária ===== */
@@ -321,6 +323,94 @@
             letter-spacing: 0.1em;
         }
 
+        /* ===== ABA ANÁLISE ===== */
+        .analysis-box {
+            margin: 16px 20px 80px;
+            border-top: 1px solid var(--iron);
+            padding-top: 14px;
+            display: none;
+        }
+
+        .analysis-box.active {
+            display: block;
+        }
+
+        .analysis-header {
+            font-size: 0.55rem;
+            color: var(--dust);
+            letter-spacing: 0.2em;
+            margin-bottom: 20px;
+        }
+
+        .analysis-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--forge);
+        }
+
+        .analysis-label {
+            font-size: 0.75rem;
+            color: var(--silver);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .analysis-value {
+            font-size: 1rem;
+            color: var(--platinum);
+            font-family: 'Inter', monospace;
+        }
+
+        .analysis-value.positive {
+            color: var(--platinum);
+        }
+
+        .analysis-value.negative {
+            color: var(--dust);
+        }
+
+        .analysis-category-bar {
+            margin: 12px 0;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--forge);
+        }
+
+        .category-name {
+            width: 70px;
+            font-size: 0.7rem;
+            color: var(--silver);
+            text-transform: uppercase;
+        }
+
+        .category-bar-bg {
+            flex: 1;
+            height: 4px;
+            background: var(--forge);
+            position: relative;
+        }
+
+        .category-bar-fill {
+            height: 4px;
+            background: var(--platinum);
+            width: 0%;
+        }
+
+        .category-value {
+            font-size: 0.75rem;
+            color: var(--dust);
+            font-family: 'Inter', monospace;
+            min-width: 70px;
+            text-align: right;
+        }
+
         /* ===== barra inferior ===== */
         .bottom-strip {
             background: var(--graphite);
@@ -345,6 +435,8 @@
             font-size: 0.55rem;
             letter-spacing: 0.15em;
             padding: 6px 8px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .nav-unit.active {
@@ -435,7 +527,7 @@
     <div id="welcomeOverlay" class="init-shroud">
         <div class="init-card">
             <div class="init-title">ÆSIR</div>
-            <div style="color: var(--dust); font-size:0.6rem; margin:16px 0;">cinza · 03</div>
+            <div style="color: var(--dust); font-size:0.6rem; margin:16px 0;">cinza · análise</div>
             <button class="enter-btn" id="startAppBtn">ACESSAR</button>
         </div>
     </div>
@@ -477,7 +569,8 @@
             <div class="voice-feedback-text" id="micFeedback"></div>
         </div>
 
-        <div class="ledger-box">
+        <!-- ABA INÍCIO (extrato) -->
+        <div id="homeTab" class="ledger-box">
             <div class="ledger-header">
                 <span>movimento</span>
                 <span>valor</span>
@@ -487,12 +580,76 @@
             </div>
         </div>
 
+        <!-- ABA ANÁLISE -->
+        <div id="analysisTab" class="analysis-box">
+            <div class="analysis-header">> resumo do período <</div>
+            
+            <div class="analysis-row">
+                <span class="analysis-label">total receitas</span>
+                <span class="analysis-value positive" id="analysisIncome">R$ 0,00</span>
+            </div>
+            <div class="analysis-row">
+                <span class="analysis-label">total despesas</span>
+                <span class="analysis-value negative" id="analysisExpense">R$ 0,00</span>
+            </div>
+            <div class="analysis-row">
+                <span class="analysis-label">saldo líquido</span>
+                <span class="analysis-value" id="analysisBalance">R$ 0,00</span>
+            </div>
+            <div class="analysis-row">
+                <span class="analysis-label">transações</span>
+                <span class="analysis-value" id="analysisCount">0</span>
+            </div>
+            
+            <div style="margin-top: 32px;">
+                <div class="analysis-header">> categorias <</div>
+                <div id="categoriesContainer">
+                    <div class="category-item">
+                        <span class="category-name">alim.</span>
+                        <div class="category-bar-bg">
+                            <div class="category-bar-fill" id="catAlimBar" style="width: 0%"></div>
+                        </div>
+                        <span class="category-value" id="catAlimValue">R$ 0</span>
+                    </div>
+                    <div class="category-item">
+                        <span class="category-name">transp</span>
+                        <div class="category-bar-bg">
+                            <div class="category-bar-fill" id="catTranspBar" style="width: 0%"></div>
+                        </div>
+                        <span class="category-value" id="catTranspValue">R$ 0</span>
+                    </div>
+                    <div class="category-item">
+                        <span class="category-name">morad</span>
+                        <div class="category-bar-bg">
+                            <div class="category-bar-fill" id="catMoradBar" style="width: 0%"></div>
+                        </div>
+                        <span class="category-value" id="catMoradValue">R$ 0</span>
+                    </div>
+                    <div class="category-item">
+                        <span class="category-name">outros</span>
+                        <div class="category-bar-bg">
+                            <div class="category-bar-fill" id="catOutrosBar" style="width: 0%"></div>
+                        </div>
+                        <span class="category-value" id="catOutrosValue">R$ 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="bottom-strip">
-            <div class="nav-unit active"><span class="nav-marker"></span>início</div>
-            <div class="nav-unit"><span class="nav-marker"></span>análise</div>
+            <div class="nav-unit" id="navHome">
+                <span class="nav-marker"></span>início
+            </div>
+            <div class="nav-unit" id="navAnalysis">
+                <span class="nav-marker"></span>análise
+            </div>
             <div class="fab-mini" id="fabMic">+</div>
-            <div class="nav-unit"><span class="nav-marker"></span>arquivo</div>
-            <div class="nav-unit"><span class="nav-marker"></span>sistema</div>
+            <div class="nav-unit" id="navArchive">
+                <span class="nav-marker"></span>arquivo
+            </div>
+            <div class="nav-unit" id="navSystem">
+                <span class="nav-marker"></span>sistema
+            </div>
         </div>
     </div>
 
@@ -506,7 +663,7 @@
                 // ---------- DADOS ----------
                 let transactions = [];
                 try {
-                    const saved = localStorage.getItem('aesir_ledger_v2');
+                    const saved = localStorage.getItem('aesir_ledger_v3');
                     if (saved) {
                         transactions = JSON.parse(saved);
                         console.log('transações carregadas:', transactions.length);
@@ -520,6 +677,7 @@
                 let recognition = null;
                 let synth = window.speechSynthesis;
                 let voicePreferred = null;
+                let currentTab = 'home'; // home ou analysis
 
                 // ---------- REFERÊNCIAS DOM ----------
                 const balanceEl = document.getElementById('balanceDisplay');
@@ -535,19 +693,39 @@
                 const monthBtn = document.getElementById('monthBtn');
                 const welcomeOverlay = document.getElementById('welcomeOverlay');
                 const startBtn = document.getElementById('startAppBtn');
-                const mainApp = document.getElementById('mainApp');
+                const homeTab = document.getElementById('homeTab');
+                const analysisTab = document.getElementById('analysisTab');
+                const navHome = document.getElementById('navHome');
+                const navAnalysis = document.getElementById('navAnalysis');
+                const navArchive = document.getElementById('navArchive');
+                const navSystem = document.getElementById('navSystem');
+
+                // elementos da análise
+                const analysisIncome = document.getElementById('analysisIncome');
+                const analysisExpense = document.getElementById('analysisExpense');
+                const analysisBalance = document.getElementById('analysisBalance');
+                const analysisCount = document.getElementById('analysisCount');
+                const catAlimValue = document.getElementById('catAlimValue');
+                const catTranspValue = document.getElementById('catTranspValue');
+                const catMoradValue = document.getElementById('catMoradValue');
+                const catOutrosValue = document.getElementById('catOutrosValue');
+                const catAlimBar = document.getElementById('catAlimBar');
+                const catTranspBar = document.getElementById('catTranspBar');
+                const catMoradBar = document.getElementById('catMoradBar');
+                const catOutrosBar = document.getElementById('catOutrosBar');
 
                 // ---------- FORMATAÇÃO ----------
                 function formatCurrency(val) {
                     return 'R$ ' + val.toFixed(2).replace('.', ',');
                 }
 
-                // ---------- ATUALIZAR UI ----------
+                // ---------- ATUALIZAR UI (ambas as abas) ----------
                 function updateUI() {
                     const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
                     const expense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
                     const balance = income - expense;
 
+                    // elementos principais
                     if (balanceEl) balanceEl.textContent = formatCurrency(balance);
                     if (incomeEl) incomeEl.textContent = formatCurrency(income);
                     if (expenseEl) expenseEl.textContent = formatCurrency(expense);
@@ -558,6 +736,43 @@
                         if (hiddenMode) el.classList.add('blur');
                         else el.classList.remove('blur');
                     });
+
+                    // atualizar análise
+                    if (analysisIncome) analysisIncome.textContent = formatCurrency(income);
+                    if (analysisExpense) analysisExpense.textContent = formatCurrency(expense);
+                    if (analysisBalance) analysisBalance.textContent = formatCurrency(balance);
+                    if (analysisCount) analysisCount.textContent = transactions.length;
+
+                    // categorias (baseado em palavras-chave)
+                    let catAlim = 0, catTransp = 0, catMorad = 0, catOutros = 0;
+                    
+                    transactions.forEach(t => {
+                        if (t.type === 'expense') {
+                            const desc = (t.description || '').toLowerCase();
+                            if (desc.includes('almoço') || desc.includes('jantar') || desc.includes('mercado') || desc.includes('alim') || desc.includes('comida') || desc.includes('restaurante')) {
+                                catAlim += t.amount;
+                            } else if (desc.includes('uber') || desc.includes('taxi') || desc.includes('gasolina') || desc.includes('transp') || desc.includes('ônibus') || desc.includes('metrô')) {
+                                catTransp += t.amount;
+                            } else if (desc.includes('aluguel') || desc.includes('luz') || desc.includes('água') || desc.includes('gás') || desc.includes('morad') || desc.includes('condomínio')) {
+                                catMorad += t.amount;
+                            } else {
+                                catOutros += t.amount;
+                            }
+                        }
+                    });
+
+                    const totalDespesas = catAlim + catTransp + catMorad + catOutros;
+
+                    if (catAlimValue) catAlimValue.textContent = formatCurrency(catAlim);
+                    if (catTranspValue) catTranspValue.textContent = formatCurrency(catTransp);
+                    if (catMoradValue) catMoradValue.textContent = formatCurrency(catMorad);
+                    if (catOutrosValue) catOutrosValue.textContent = formatCurrency(catOutros);
+
+                    // barras percentuais
+                    if (catAlimBar) catAlimBar.style.width = (totalDespesas > 0 ? (catAlim / totalDespesas) * 100 : 0) + '%';
+                    if (catTranspBar) catTranspBar.style.width = (totalDespesas > 0 ? (catTransp / totalDespesas) * 100 : 0) + '%';
+                    if (catMoradBar) catMoradBar.style.width = (totalDespesas > 0 ? (catMorad / totalDespesas) * 100 : 0) + '%';
+                    if (catOutrosBar) catOutrosBar.style.width = (totalDespesas > 0 ? (catOutros / totalDespesas) * 100 : 0) + '%';
 
                     // lista de transações com botão remover
                     if (!transContainer) return;
@@ -572,17 +787,16 @@
                         let cat = 'outro';
                         if (t.description) {
                             const descLower = t.description.toLowerCase();
-                            if (descLower.includes('almoço') || descLower.includes('jantar') || descLower.includes('mercado') || descLower.includes('alim')) cat = 'alim.';
-                            else if (descLower.includes('uber') || descLower.includes('gasolina') || descLower.includes('transp')) cat = 'transp';
-                            else if (descLower.includes('aluguel') || descLower.includes('luz') || descLower.includes('morad')) cat = 'morad';
+                            if (descLower.includes('almoço') || descLower.includes('jantar') || descLower.includes('mercado')) cat = 'alim.';
+                            else if (descLower.includes('uber') || descLower.includes('gasolina')) cat = 'transp';
+                            else if (descLower.includes('aluguel') || descLower.includes('luz')) cat = 'morad';
                         }
                         const sign = t.type === 'income' ? '' : '−';
-                        // usamos o id real se existir, ou índice como fallback
                         const transId = t.id || 'temp_' + Date.now() + '_' + index;
                         html += `
                             <div class="trans-row" data-trans-id="${transId}">
                                 <div class="trans-desc-block">
-                                    <span class="trans-desc">${t.description.substring(0, 22)}</span>
+                                    <span class="trans-desc">${(t.description || 'movimento').substring(0, 22)}</span>
                                     <span class="trans-cat">${cat}</span>
                                 </div>
                                 <div class="trans-value ${t.type}">${sign} ${formatCurrency(t.amount)}</div>
@@ -607,23 +821,18 @@
 
                 // ---------- REMOVER TRANSAÇÃO POR ID ----------
                 function removeTransactionById(id) {
-                    // encontrar índice
-                    const index = transactions.findIndex(t => t.id == id); // comparação solta pq id pode vir como string
+                    const index = transactions.findIndex(t => t.id == id);
                     if (index !== -1) {
-                        const removed = transactions[index];
                         transactions.splice(index, 1);
                         saveTransactions();
-                        speak(`removido ${removed.description.substring(0, 15)}`);
-                    } else {
-                        console.warn('id não encontrado:', id);
+                        speak('removido');
                     }
                 }
 
                 // ---------- PERSISTÊNCIA ----------
                 function saveTransactions() {
                     try {
-                        localStorage.setItem('aesir_ledger_v2', JSON.stringify(transactions));
-                        console.log('salvo');
+                        localStorage.setItem('aesir_ledger_v3', JSON.stringify(transactions));
                     } catch (e) {}
                     updateUI();
                 }
@@ -705,14 +914,11 @@
                             processVoiceCommand(transcript);
                         }
                     };
-                } else {
-                    console.warn('reconhecimento não suportado');
                 }
 
                 function processVoiceCommand(cmd) {
                     const lower = cmd.toLowerCase();
                     
-                    // extrair número
                     let amount = null;
                     const numberMap = {
                         'zero':0,'um':1,'dois':2,'três':3,'tres':3,'quatro':4,'cinco':5,
@@ -733,7 +939,6 @@
                     const isIncome = /recebi|ganhei|salário|salario|entrada/i.test(lower);
                     const type = isIncome ? 'income' : 'expense';
 
-                    // descrição
                     let desc = cmd
                         .replace(/\d+\s*mil/gi, '')
                         .replace(/\d+/g, '')
@@ -765,9 +970,27 @@
                     } else {
                         try {
                             recognition.start();
-                        } catch (e) {
-                            console.warn('erro ao iniciar recognition', e);
-                        }
+                        } catch (e) {}
+                    }
+                }
+
+                // ---------- TROCA DE ABAS ----------
+                function setActiveTab(tab) {
+                    currentTab = tab;
+                    if (tab === 'home') {
+                        homeTab.classList.add('active');
+                        analysisTab.classList.remove('active');
+                        navHome.classList.add('active');
+                        navAnalysis.classList.remove('active');
+                        navArchive.classList.remove('active');
+                        navSystem.classList.remove('active');
+                    } else if (tab === 'analysis') {
+                        homeTab.classList.remove('active');
+                        analysisTab.classList.add('active');
+                        navHome.classList.remove('active');
+                        navAnalysis.classList.add('active');
+                        navArchive.classList.remove('active');
+                        navSystem.classList.remove('active');
                     }
                 }
 
@@ -825,7 +1048,7 @@
                     });
                 }
 
-                // mês (apenas feedback)
+                // mês
                 if (monthBtn) {
                     monthBtn.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -833,9 +1056,46 @@
                     });
                 }
 
-                // inicializar UI
+                // navegação
+                if (navHome) {
+                    navHome.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        setActiveTab('home');
+                    });
+                }
+
+                if (navAnalysis) {
+                    navAnalysis.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        setActiveTab('analysis');
+                    });
+                }
+
+                if (navArchive) {
+                    navArchive.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        speak('arquivo');
+                    });
+                }
+
+                if (navSystem) {
+                    navSystem.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        speak('sistema');
+                    });
+                }
+
+                // inicializar UI e aba padrão
+                setActiveTab('home');
                 updateUI();
 
+                // dados de exemplo para teste (comente se quiser)
+                if (transactions.length === 0) {
+                    addTransaction('expense', 4500, 'aluguel');
+                    addTransaction('expense', 8900, 'supermercado');
+                    addTransaction('expense', 3200, 'uber');
+                    addTransaction('income', 45000, 'salário');
+                }
             }); 
         })();
     </script>
