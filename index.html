@@ -248,12 +248,14 @@
             padding: 14px 0;
             border-bottom: 1px solid var(--forge);
             cursor: default;
+            position: relative;
         }
 
         .trans-desc-block {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            flex: 1;
         }
 
         .trans-desc {
@@ -271,6 +273,7 @@
             font-size: 0.95rem;
             color: var(--platinum);
             font-family: 'Inter', monospace;
+            margin-right: 12px;
         }
 
         .trans-value.income {
@@ -279,6 +282,35 @@
 
         .trans-value.expense {
             color: var(--dust);
+        }
+
+        /* botão de remover individual */
+        .remove-trans-btn {
+            background: transparent;
+            border: 1px solid var(--iron);
+            color: var(--dust);
+            font-size: 0.7rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: 'Inter', monospace;
+            padding: 0;
+            line-height: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .remove-trans-btn:active {
+            background: var(--iron);
+            color: var(--platinum);
+            border-color: var(--silver);
+        }
+
+        .trans-row:hover .remove-trans-btn {
+            opacity: 1;
         }
 
         .empty-ledger {
@@ -420,7 +452,7 @@
             </div>
             <div class="action-strip">
                 <span class="action-btn" id="toggleBlurBtn">[ ocultar ]</span>
-                <span class="action-btn" id="clearAllBtn">[ limpar ]</span>
+                <span class="action-btn" id="clearAllBtn">[ limpar tudo ]</span>
                 <span class="action-btn" id="monthBtn">[ dezembro ]</span>
             </div>
         </header>
@@ -468,7 +500,6 @@
         (function() {
             "use strict";
 
-            // ==================== AGUARDAR DOM PRONTO ====================
             document.addEventListener('DOMContentLoaded', function() {
                 console.log('DOM carregado, inicializando...');
 
@@ -528,7 +559,7 @@
                         else el.classList.remove('blur');
                     });
 
-                    // lista de transações
+                    // lista de transações com botão remover
                     if (!transContainer) return;
 
                     if (transactions.length === 0) {
@@ -537,26 +568,55 @@
                     }
 
                     let html = '';
-                    transactions.slice(0, 12).forEach(t => {
+                    transactions.slice(0, 20).forEach((t, index) => {
                         let cat = 'outro';
                         if (t.description) {
                             const descLower = t.description.toLowerCase();
-                            if (descLower.includes('almoço') || descLower.includes('jantar') || descLower.includes('mercado')) cat = 'alim.';
-                            else if (descLower.includes('uber') || descLower.includes('gasolina')) cat = 'transp';
-                            else if (descLower.includes('aluguel') || descLower.includes('luz')) cat = 'morad';
+                            if (descLower.includes('almoço') || descLower.includes('jantar') || descLower.includes('mercado') || descLower.includes('alim')) cat = 'alim.';
+                            else if (descLower.includes('uber') || descLower.includes('gasolina') || descLower.includes('transp')) cat = 'transp';
+                            else if (descLower.includes('aluguel') || descLower.includes('luz') || descLower.includes('morad')) cat = 'morad';
                         }
                         const sign = t.type === 'income' ? '' : '−';
+                        // usamos o id real se existir, ou índice como fallback
+                        const transId = t.id || 'temp_' + Date.now() + '_' + index;
                         html += `
-                            <div class="trans-row">
+                            <div class="trans-row" data-trans-id="${transId}">
                                 <div class="trans-desc-block">
-                                    <span class="trans-desc">${t.description.substring(0, 20)}</span>
+                                    <span class="trans-desc">${t.description.substring(0, 22)}</span>
                                     <span class="trans-cat">${cat}</span>
                                 </div>
                                 <div class="trans-value ${t.type}">${sign} ${formatCurrency(t.amount)}</div>
+                                <button class="remove-trans-btn" data-remove-id="${transId}" title="remover">✕</button>
                             </div>
                         `;
                     });
                     transContainer.innerHTML = html;
+
+                    // adicionar eventos aos botões de remover
+                    document.querySelectorAll('.remove-trans-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = this.getAttribute('data-remove-id');
+                            if (id) {
+                                removeTransactionById(id);
+                            }
+                        });
+                    });
+                }
+
+                // ---------- REMOVER TRANSAÇÃO POR ID ----------
+                function removeTransactionById(id) {
+                    // encontrar índice
+                    const index = transactions.findIndex(t => t.id == id); // comparação solta pq id pode vir como string
+                    if (index !== -1) {
+                        const removed = transactions[index];
+                        transactions.splice(index, 1);
+                        saveTransactions();
+                        speak(`removido ${removed.description.substring(0, 15)}`);
+                    } else {
+                        console.warn('id não encontrado:', id);
+                    }
                 }
 
                 // ---------- PERSISTÊNCIA ----------
@@ -570,13 +630,14 @@
 
                 // ---------- ADICIONAR TRANSAÇÃO ----------
                 function addTransaction(type, amount, description) {
-                    transactions.unshift({
-                        id: Date.now() + Math.random(),
+                    const newTrans = {
+                        id: Date.now() + '_' + Math.random().toString(36).substring(2, 6),
                         type: type,
                         amount: amount,
                         description: description.substring(0, 24) || (type === 'income' ? 'receita' : 'despesa'),
                         date: new Date().toLocaleDateString('pt-BR')
-                    });
+                    };
+                    transactions.unshift(newTrans);
                     saveTransactions();
                 }
 
@@ -718,7 +779,6 @@
                         welcomeOverlay.style.opacity = '0';
                         setTimeout(function() {
                             welcomeOverlay.style.display = 'none';
-                            // mensagem de boas vindas após overlay sumir
                             setTimeout(function() {
                                 const hour = new Date().getHours();
                                 const greet = hour < 12 ? 'bom dia' : hour < 18 ? 'boa tarde' : 'boa noite';
@@ -733,7 +793,6 @@
                         }, 600);
                     });
                 } else {
-                    // se overlay não existir, apenas esconder
                     if (welcomeOverlay) welcomeOverlay.style.display = 'none';
                 }
 
@@ -777,13 +836,7 @@
                 // inicializar UI
                 updateUI();
 
-                // pequeno teste: transação de exemplo se vazio (opcional, remover se quiser)
-                if (transactions.length === 0) {
-                    // descomente se quiser dados de exemplo
-                    // addTransaction('expense', 45, 'almoço');
-                    // addTransaction('income', 3200, 'salário');
-                }
-            }); // fim DOMContentLoaded
+            }); 
         })();
     </script>
 </body>
