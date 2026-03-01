@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ÆSIR • cinza + análise</title>
+    <title>ÆSIR • voz natural</title>
     <style>
         /* ===== RESET — cinza com detalhes pretos ===== */
         * {
@@ -232,6 +232,10 @@
             margin: 16px 20px 80px;
             border-top: 1px solid var(--iron);
             padding-top: 14px;
+        }
+
+        .ledger-box.active {
+            display: block;
         }
 
         .ledger-header {
@@ -527,7 +531,7 @@
     <div id="welcomeOverlay" class="init-shroud">
         <div class="init-card">
             <div class="init-title">ÆSIR</div>
-            <div style="color: var(--dust); font-size:0.6rem; margin:16px 0;">cinza · análise</div>
+            <div style="color: var(--dust); font-size:0.6rem; margin:16px 0;">voz natural</div>
             <button class="enter-btn" id="startAppBtn">ACESSAR</button>
         </div>
     </div>
@@ -570,7 +574,7 @@
         </div>
 
         <!-- ABA INÍCIO (extrato) -->
-        <div id="homeTab" class="ledger-box">
+        <div id="homeTab" class="ledger-box active">
             <div class="ledger-header">
                 <span>movimento</span>
                 <span>valor</span>
@@ -663,7 +667,7 @@
                 // ---------- DADOS ----------
                 let transactions = [];
                 try {
-                    const saved = localStorage.getItem('aesir_ledger_v3');
+                    const saved = localStorage.getItem('aesir_ledger_v4');
                     if (saved) {
                         transactions = JSON.parse(saved);
                         console.log('transações carregadas:', transactions.length);
@@ -719,6 +723,96 @@
                     return 'R$ ' + val.toFixed(2).replace('.', ',');
                 }
 
+                // ---------- SELEÇÃO DE VOZ NATURAL (prioridade feminina PT-BR) ----------
+                function findNaturalVoice() {
+                    const voices = synth.getVoices();
+                    console.log('Vozes disponíveis:', voices.map(v => v.lang + ' - ' + v.name));
+                    
+                    // Prioridade: vozes femininas PT-BR de alta qualidade
+                    const preferredNames = ['Luciana', 'Maria', 'Helena', 'Isabela', 'Juliana', 'Raquel', 'Sofia', 'Clara', 'Voice Quality'];
+                    
+                    // Primeiro: tentar encontrar voz feminina PT-BR por nome
+                    for (let name of preferredNames) {
+                        const found = voices.find(v => v.lang.includes('pt-BR') && v.name.includes(name));
+                        if (found) return found;
+                    }
+                    
+                    // Segundo: qualquer voz PT-BR feminina (detecta nomes comuns femininos)
+                    const femaleIndicators = ['Female', 'Feminina', 'woman', 'luciana', 'maria', 'helena', 'isabel', 'julia', 'ana', 'carla', 'paula', 'renata'];
+                    const ptVoice = voices.find(v => 
+                        v.lang.includes('pt-BR') && 
+                        femaleIndicators.some(ind => v.name.toLowerCase().includes(ind.toLowerCase()))
+                    );
+                    if (ptVoice) return ptVoice;
+                    
+                    // Terceiro: qualquer voz PT-BR
+                    const anyPt = voices.find(v => v.lang.includes('pt-BR'));
+                    if (anyPt) return anyPt;
+                    
+                    // Quarto: qualquer voz portuguesa
+                    const anyPtAny = voices.find(v => v.lang.includes('pt'));
+                    if (anyPtAny) return anyPtAny;
+                    
+                    // Último: primeira voz disponível
+                    return voices[0];
+                }
+
+                function loadVoices() {
+                    voicePreferred = findNaturalVoice();
+                    if (voicePreferred) {
+                        console.log('Voz selecionada:', voicePreferred.name, voicePreferred.lang);
+                    }
+                }
+
+                // Carregar vozes inicialmente
+                if (synth) {
+                    loadVoices();
+                    if (synth.onvoiceschanged !== undefined) {
+                        synth.onvoiceschanged = function() {
+                            loadVoices();
+                            // Se já passou do overlay, testar a voz
+                            if (welcomeOverlay && welcomeOverlay.style.display === 'none') {
+                                console.log('Vozes recarregadas');
+                            }
+                        };
+                    }
+                }
+
+                // ---------- FUNÇÃO DE FALA MELHORADA (voz natural) ----------
+                function speak(text) {
+                    if (!synth) {
+                        console.warn('Speech synthesis não disponível');
+                        return;
+                    }
+                    
+                    // Cancelar qualquer fala anterior
+                    synth.cancel();
+                    
+                    // Pequeno atraso para garantir cancelamento
+                    setTimeout(() => {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        
+                        // Configurar para português do Brasil
+                        utterance.lang = 'pt-BR';
+                        
+                        // Ajustes para voz mais natural
+                        utterance.rate = 0.9;      // velocidade ligeiramente mais lenta (mais natural)
+                        utterance.pitch = 1.0;      // tom natural
+                        utterance.volume = 1.0;
+                        
+                        // Usar voz preferida se disponível
+                        if (voicePreferred) {
+                            utterance.voice = voicePreferred;
+                        }
+                        
+                        // Eventos para debug
+                        utterance.onstart = () => console.log('Falando:', text);
+                        utterance.onerror = (e) => console.warn('Erro na síntese:', e);
+                        
+                        synth.speak(utterance);
+                    }, 50);
+                }
+
                 // ---------- ATUALIZAR UI (ambas as abas) ----------
                 function updateUI() {
                     const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
@@ -743,7 +837,7 @@
                     if (analysisBalance) analysisBalance.textContent = formatCurrency(balance);
                     if (analysisCount) analysisCount.textContent = transactions.length;
 
-                    // categorias (baseado em palavras-chave)
+                    // categorias
                     let catAlim = 0, catTransp = 0, catMorad = 0, catOutros = 0;
                     
                     transactions.forEach(t => {
@@ -823,16 +917,17 @@
                 function removeTransactionById(id) {
                     const index = transactions.findIndex(t => t.id == id);
                     if (index !== -1) {
+                        const removed = transactions[index];
                         transactions.splice(index, 1);
                         saveTransactions();
-                        speak('removido');
+                        speak(`${removed.description} removido`);
                     }
                 }
 
                 // ---------- PERSISTÊNCIA ----------
                 function saveTransactions() {
                     try {
-                        localStorage.setItem('aesir_ledger_v3', JSON.stringify(transactions));
+                        localStorage.setItem('aesir_ledger_v4', JSON.stringify(transactions));
                     } catch (e) {}
                     updateUI();
                 }
@@ -855,35 +950,18 @@
                     if (transactions.length > 0 && confirm('apagar todo o registro?')) {
                         transactions = [];
                         saveTransactions();
-                        speak('registro limpo');
+                        speak('Todos os registros foram apagados');
                     }
                 }
 
-                // ---------- VOZ ----------
-                function loadVoices() {
-                    const voices = synth.getVoices();
-                    voicePreferred = voices.find(v => v.lang.includes('pt-BR')) || voices.find(v => v.lang.includes('pt')) || voices[0];
-                }
-                loadVoices();
-                if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
-
-                function speak(text) {
-                    if (!synth) return;
-                    synth.cancel();
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'pt-BR';
-                    utterance.rate = 0.9;
-                    if (voicePreferred) utterance.voice = voicePreferred;
-                    synth.speak(utterance);
-                }
-
-                // ---------- RECONHECIMENTO ----------
+                // ---------- RECONHECIMENTO DE VOZ ----------
                 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
                     recognition = new SR();
                     recognition.lang = 'pt-BR';
                     recognition.continuous = false;
                     recognition.interimResults = true;
+                    recognition.maxAlternatives = 1;
 
                     recognition.onstart = function() {
                         listeningActive = true;
@@ -900,7 +978,8 @@
                         }, 2000);
                     };
 
-                    recognition.onerror = function() {
+                    recognition.onerror = function(event) {
+                        console.warn('Erro no reconhecimento:', event.error);
                         listeningActive = false;
                         micButton?.classList.remove('listening');
                         if (micStatus) micStatus.textContent = 'falha';
@@ -914,6 +993,8 @@
                             processVoiceCommand(transcript);
                         }
                     };
+                } else {
+                    console.warn('Reconhecimento de voz não suportado');
                 }
 
                 function processVoiceCommand(cmd) {
@@ -952,17 +1033,17 @@
 
                     if (amount && amount > 0) {
                         addTransaction(type, amount, desc);
-                        speak(`registrado ${formatCurrency(amount)}`);
+                        speak(`${desc} de ${formatCurrency(amount)} registrado`);
                         if (micStatus) micStatus.textContent = '✓ registrado';
                     } else {
-                        speak('valor não identificado');
+                        speak('Valor não identificado. Por favor, repita');
                         if (micStatus) micStatus.textContent = '? não entendi';
                     }
                 }
 
                 function toggleListening() {
                     if (!recognition) {
-                        speak('voz não disponível');
+                        speak('Reconhecimento de voz não disponível');
                         return;
                     }
                     if (listeningActive) {
@@ -970,7 +1051,9 @@
                     } else {
                         try {
                             recognition.start();
-                        } catch (e) {}
+                        } catch (e) {
+                            console.warn('Erro ao iniciar recognition', e);
+                        }
                     }
                 }
 
@@ -1004,15 +1087,15 @@
                             welcomeOverlay.style.display = 'none';
                             setTimeout(function() {
                                 const hour = new Date().getHours();
-                                const greet = hour < 12 ? 'bom dia' : hour < 18 ? 'boa tarde' : 'boa noite';
-                                let msg = `${greet}, sistema cinza.`;
+                                const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+                                let msg = `${greet}. Sistema cinza ativado.`;
                                 if (transactions.length) {
-                                    msg += ` ${transactions.length} movimentos.`;
+                                    msg += ` Você tem ${transactions.length} movimentos registrados.`;
                                 } else {
-                                    msg += ' toque no microfone para comandar.';
+                                    msg += ' Toque no microfone para começar.';
                                 }
                                 speak(msg);
-                            }, 300);
+                            }, 500);
                         }, 600);
                     });
                 } else {
@@ -1052,7 +1135,7 @@
                 if (monthBtn) {
                     monthBtn.addEventListener('click', function(e) {
                         e.preventDefault();
-                        speak('dezembro');
+                        speak('Dezembro');
                     });
                 }
 
@@ -1061,6 +1144,7 @@
                     navHome.addEventListener('click', function(e) {
                         e.preventDefault();
                         setActiveTab('home');
+                        speak('Início');
                     });
                 }
 
@@ -1068,20 +1152,21 @@
                     navAnalysis.addEventListener('click', function(e) {
                         e.preventDefault();
                         setActiveTab('analysis');
+                        speak('Análise');
                     });
                 }
 
                 if (navArchive) {
                     navArchive.addEventListener('click', function(e) {
                         e.preventDefault();
-                        speak('arquivo');
+                        speak('Arquivo');
                     });
                 }
 
                 if (navSystem) {
                     navSystem.addEventListener('click', function(e) {
                         e.preventDefault();
-                        speak('sistema');
+                        speak('Sistema');
                     });
                 }
 
@@ -1089,7 +1174,7 @@
                 setActiveTab('home');
                 updateUI();
 
-                // dados de exemplo para teste (comente se quiser)
+                // dados de exemplo para teste (remova se preferir)
                 if (transactions.length === 0) {
                     addTransaction('expense', 4500, 'aluguel');
                     addTransaction('expense', 8900, 'supermercado');
