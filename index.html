@@ -2,1671 +2,715 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FinanceAI • Seu banco inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÆSIR • interface cinza</title>
     <style>
-        /* ===== RESET MODERNO ===== */
+        /* ===== RESET — domínio do cinza, toques de preto ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* ===== VARIÁVEIS DE DESIGN ===== */
+        /* paleta: cinza é a luz, preto é a sombra */
         :root {
-            --primary: #6C5CE7;
-            --primary-light: #8B7CFF;
-            --primary-dark: #5649C0;
-            --secondary: #00CEC9;
-            --success: #00B894;
-            --danger: #FF7675;
-            --warning: #FDCB6E;
-            --dark: #1E272E;
-            --gray-1: #566573;
-            --gray-2: #A3B1C0;
-            --gray-3: #D5DCE5;
-            --gray-4: #F0F3F8;
-            --light: #F8FAFD;
-            --white: #FFFFFF;
-            --gradient-1: linear-gradient(135deg, #6C5CE7 0%, #00CEC9 100%);
-            --gradient-2: linear-gradient(135deg, #FF7675 0%, #FDCB6E 100%);
-            --gradient-3: linear-gradient(135deg, #00B894 0%, #6C5CE7 100%);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-            --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
+            --iron-95: #0F0F0F;        /* preto absoluto apenas para extremos */
+            --iron-90: #1A1A1A;        /* quase preto, profundidade */
+            --iron-80: #2E2E2E;        /* cinza muito escuro — base de algumas superfícies */
+            --iron-70: #404040;        /* cinza médio-escuro, principal para textos */
+            --iron-60: #5A5A5A;        /* cinza médio, bordas e linhas */
+            --iron-50: #737373;        /* cinza médio-claro, elementos secundários */
+            --iron-40: #8F8F8F;        /* cinza claro, elevações suaves */
+            --iron-30: #ADADAD;        /*接近 branco, usado apenas para contraste extremo */
+            --iron-20: #C8C8C8;
+            --iron-10: #E6E6E6;
+
+            --foreground: var(--iron-70);
+            --background: var(--iron-95);      /* fundo principal: preto suave */
+            --surface: var(--iron-90);          /* cartões: quase preto, levemente mais claro */
+            --border-dim: var(--iron-80);       /* bordas discretas */
+            --text-primary: var(--iron-30);     /* títulos e valores importantes — cinza claro */
+            --text-secondary: var(--iron-50);   /* labels e metadados */
+            --accent-muted: var(--iron-40);     /* toques de interação sem cor */
         }
 
-        /* ===== TIPOGRAFIA ===== */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0A0F1E;
+            background: var(--background);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            color: var(--foreground);
+            font-weight: 350;
+            line-height: 1.5;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ===== FUNDO SUTIL ===== */
-        body::before {
-            content: '';
-            position: fixed;
+        /* estrutura principal — monolito cinza muito escuro */
+        .shell {
+            max-width: 420px;
             width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 0% 0%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(0, 206, 201, 0.1) 0%, transparent 50%);
+            margin: 2rem 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border-dim);
+            box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.9);
         }
 
-        /* ===== CONTAINER PRINCIPAL ===== */
-        .app-container {
-            max-width: 428px;
-            width: 100%;
-            margin: 20px auto;
-            background: var(--white);
-            border-radius: 40px;
-            box-shadow: var(--shadow-xl), 0 0 0 1px rgba(0, 0, 0, 0.02);
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
-            animation: slideUp 0.6s ease-out;
+        /* tipografia apenas peso, sem ícones lúdicos */
+        h2, h3, .label, .value, .nav-item, .tag {
+            font-weight: 340;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+        .label-micro {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.2em;
+            margin-bottom: 0.3rem;
         }
 
-        /* ===== HEADER MINIMALISTA ===== */
-        .app-header {
-            padding: 24px 24px 20px;
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-4);
+        /* --- header --- */
+        .header-zone {
+            padding: 2rem 1.5rem 1.2rem;
+            border-bottom: 1px solid var(--border-dim);
         }
 
-        .header-top {
+        .user-tag {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .profile-section {
-            display: flex;
             align-items: center;
-            gap: 12px;
+            margin-bottom: 2rem;
         }
 
-        .profile-avatar {
-            width: 48px;
-            height: 48px;
-            background: var(--gray-4);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.4rem;
-            font-weight: 500;
-        }
-
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .profile-greeting {
-            font-size: 0.85rem;
-            color: var(--gray-1);
-            font-weight: 500;
-        }
-
-        .profile-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .action-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--gray-4);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: var(--gray-1);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* ===== SALDO ESTILO BANCO ===== */
-        .balance-section {
-            margin-top: 8px;
-        }
-
-        .balance-label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--gray-1);
-            margin-bottom: 4px;
-            letter-spacing: 0.3px;
-        }
-
-        .balance-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .balance-amount {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: var(--dark);
-            letter-spacing: -1px;
-            line-height: 1;
-            transition: all 0.3s ease;
-        }
-
-        .balance-amount.hidden {
-            filter: blur(8px);
-            -webkit-filter: blur(8px);
-            user-select: none;
-        }
-
-        .balance-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .balance-action {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gray-4);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: var(--gray-1);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .balance-action:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .month-selector {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: var(--gray-4);
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--gray-1);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: fit-content;
-        }
-
-        .month-selector:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .app-main {
-            padding: 20px 24px;
-            padding-bottom: 100px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== CARDS SIMPLES ===== */
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: var(--gray-4);
-            border-radius: 24px;
-            padding: 16px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .stat-card:hover {
-            background: var(--primary);
-        }
-
-        .stat-card:hover .stat-label,
-        .stat-card:hover .stat-value {
-            color: white;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--gray-1);
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--dark);
-            transition: all 0.3s ease;
-        }
-
-        .stat-value.hidden {
-            filter: blur(6px);
-            -webkit-filter: blur(6px);
-        }
-
-        .stat-card.income .stat-value {
-            color: var(--success);
-        }
-
-        .stat-card.expense .stat-value {
-            color: var(--danger);
-        }
-
-        .stat-card:hover .stat-value {
-            color: white !important;
-        }
-
-        /* ===== SEÇÕES ===== */
-        .section {
-            background: var(--white);
-            border: 1px solid var(--gray-4);
-            border-radius: 28px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .section-action {
-            font-size: 0.85rem;
-            color: var(--primary);
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* ===== CATEGORIAS ===== */
-        .chart-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .donut-container {
-            width: 100px;
-            height: 100px;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .donut-chart {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        .categories-list {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .category-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .category-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .category-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-        }
-
-        .category-name {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--gray-1);
-        }
-
-        .category-value {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--danger);
-            transition: all 0.3s ease;
-        }
-
-        .category-value.hidden {
-            filter: blur(6px);
-            -webkit-filter: blur(6px);
-        }
-
-        /* ===== ASSISTENTE DE VOZ ===== */
-        .voice-section {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 28px;
-            padding: 24px;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .voice-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .voice-circle {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .voice-circle:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.3);
-            border-color: white;
-        }
-
-        .voice-circle.active {
-            animation: pulse 1.5s infinite;
-            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-        }
-
-        .voice-status {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .voice-transcript {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 16px;
-            border-radius: 30px;
-            min-height: 40px;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 16px;
-            backdrop-filter: blur(5px);
-        }
-
-        .voice-examples {
-            width: 100%;
-        }
-
-        .voice-examples h4 {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 12px;
-            font-weight: 500;
-        }
-
-        .voice-examples ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .voice-examples li {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            font-size: 0.8rem;
-            padding: 8px 14px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .voice-examples li:hover {
-            background: white;
-            color: var(--primary);
-            transform: scale(1.05);
-        }
-
-        /* ===== TRANSAÇÕES ===== */
-        .transactions-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            background: var(--gray-4);
-            border-radius: 20px;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .transaction-item:hover {
-            background: var(--white);
-            border-color: var(--gray-3);
-            transform: translateX(4px);
-        }
-
-        .transaction-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .transaction-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 16px;
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .transaction-details h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 2px;
-        }
-
-        .transaction-details p {
+        .operator {
             font-size: 0.7rem;
-            color: var(--gray-1);
+            color: var(--text-secondary);
+            letter-spacing: 0.3em;
         }
 
-        .transaction-right {
+        .status-pip {
+            width: 6px;
+            height: 6px;
+            background: var(--iron-60);
+        }
+
+        .balance-area {
+            margin: 0.5rem 0 0.2rem;
+        }
+
+        .value-main {
+            font-size: 3.2rem;
+            font-weight: 280;
+            color: var(--text-primary);
+            line-height: 1;
+            font-family: 'Inter', monospace;
+            letter-spacing: -0.03em;
+            transition: filter 0.2s;
+        }
+
+        .value-main.blur {
+            filter: blur(8px);
+        }
+
+        .action-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 1.8rem;
+            margin-top: 1.5rem;
         }
 
-        .transaction-amount {
-            font-size: 0.95rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-        }
-
-        .transaction-amount.hidden {
-            filter: blur(6px);
-            -webkit-filter: blur(6px);
-        }
-
-        .delete-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            background: var(--white);
-            border: none;
-            color: var(--danger);
-            font-size: 0.9rem;
+        .action-text {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.15em;
             cursor: pointer;
-            opacity: 0;
-            transition: all 0.2s ease;
+            border-bottom: 1px solid transparent;
+            transition: 0.1s;
+        }
+
+        .action-text:hover {
+            color: var(--iron-30);
+            border-bottom: 1px solid var(--iron-40);
+        }
+
+        /* --- métricas gêmeas (cinza sobre preto) --- */
+        .duo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border-dim);
+            margin: 1.2rem 1.5rem;
+        }
+
+        .duo-cell {
+            background: var(--surface);
+            padding: 1.2rem 0.8rem;
+        }
+
+        .duo-label {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.15em;
+        }
+
+        .duo-value {
+            font-size: 1.7rem;
+            font-weight: 260;
+            color: var(--text-primary);
+            font-family: 'Inter', monospace;
+        }
+
+        .duo-value.blur {
+            filter: blur(5px);
+        }
+
+        /* --- microfone silencioso (apenas texto/forma) --- */
+        .comm-center {
+            margin: 1rem 1.5rem 2rem 1.5rem;
+            border: 1px solid var(--border-dim);
+            background: var(--iron-90);
+            padding: 1.8rem 1rem 1.5rem;
+        }
+
+        .comm-prompt {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.4em;
+            text-align: center;
+        }
+
+        .comm-activator {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .cold-circle {
+            width: 66px;
+            height: 66px;
+            border: 1px solid var(--iron-60);
+            background: var(--iron-90);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 100;
+            color: var(--iron-40);
+            cursor: pointer;
+            transition: 0.15s;
+            border-radius: 0; /* mantém angular, sem infantilidade */
         }
 
-        .transaction-item:hover .delete-btn {
-            opacity: 1;
+        .cold-circle:hover {
+            background: var(--iron-80);
+            color: var(--iron-20);
+            border-color: var(--iron-40);
         }
 
-        .delete-btn:hover {
-            background: var(--danger);
-            color: white;
+        .cold-circle.active {
+            background: var(--iron-70);
+            border-color: var(--iron-30);
+            animation: faint-pulse 1.2s infinite;
         }
 
-        .empty-state {
+        @keyframes faint-pulse {
+            0% { border-color: var(--iron-60); }
+            50% { border-color: var(--iron-30); }
+            100% { border-color: var(--iron-60); }
+        }
+
+        .status-line {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
             text-align: center;
-            color: var(--gray-2);
-            padding: 32px;
-            font-size: 0.9rem;
+            min-height: 1.2rem;
+            letter-spacing: 0.1em;
         }
 
-        .clear-all-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 20px;
+        .transcript-line {
+            font-size: 0.7rem;
+            color: var(--iron-30);
+            text-align: center;
+            border-top: 1px dashed var(--iron-80);
+            margin-top: 1rem;
+            padding-top: 0.9rem;
+            min-height: 2.5rem;
+            font-style: normal;
         }
 
-        .clear-all-btn:hover {
-            background: var(--gray-4);
+        /* --- extrato — só linhas e números --- */
+        .ledger-section {
+            margin: 1.5rem 1.5rem 5rem 1.5rem;
+            border-top: 1px solid var(--border-dim);
+            padding-top: 1rem;
         }
 
-        /* ===== PÁGINA DE TRANSAÇÕES ===== */
-        .all-transactions-header {
+        .ledger-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.2em;
+            margin-bottom: 0.8rem;
         }
 
-        .all-transactions-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .filter-buttons {
+        .row-item {
             display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .filter-btn {
-            flex: 1;
-            padding: 10px;
-            background: var(--gray-4);
-            border: none;
-            border-radius: 24px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--gray-1);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .filter-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .filter-btn:hover {
-            background: var(--primary-light);
-            color: white;
-        }
-
-        /* ===== NAVEGAÇÃO INFERIOR ===== */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 428px;
-            width: 100%;
-            background: var(--white);
-            padding: 16px 24px 24px;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--iron-80);
+        }
+
+        .row-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .row-desc {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            font-weight: 300;
+            text-transform: none;
+        }
+
+        .row-cat {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+        }
+
+        .row-number {
+            font-size: 0.95rem;
+            color: var(--iron-30);
+            font-family: 'Inter', monospace;
+        }
+
+        .row-number.income {
+            color: var(--iron-20);
+        }
+
+        .row-number.expense {
+            color: var(--iron-50);
+        }
+
+        .empty-ledger {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--iron-70);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* --- navegação inferior com cinza dominante --- */
+        .bottom-bar {
+            background: var(--iron-90);
+            border-top: 1px solid var(--border-dim);
+            display: flex;
             justify-content: space-around;
-            border-top: 1px solid var(--gray-4);
-            border-radius: 30px 30px 0 0;
+            padding: 0.8rem 1rem 1rem;
+            position: sticky;
+            bottom: 0;
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            color: var(--gray-2);
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:hover {
-            color: var(--primary);
+            gap: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.55rem;
+            letter-spacing: 0.15em;
+            cursor: default;
         }
 
         .nav-item.active {
-            color: var(--primary);
+            color: var(--iron-30);
         }
 
-        .nav-icon {
-            font-size: 1.3rem;
+        .nav-dot {
+            width: 2px;
+            height: 2px;
+            background: currentColor;
         }
 
-        .add-button {
-            width: 56px;
-            height: 56px;
-            border-radius: 28px;
-            background: var(--primary);
-            color: white;
-            font-size: 1.8rem;
+        .fob {
+            width: 44px;
+            height: 44px;
+            background: var(--iron-80);
+            border: 1px solid var(--iron-60);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.3rem;
+            color: var(--iron-30);
+            margin-top: -20px;
             cursor: pointer;
-            box-shadow: var(--shadow-lg);
-            margin-top: -36px;
-            transition: all 0.3s ease;
+            transition: 0.1s;
         }
 
-        .add-button:hover {
-            background: var(--primary-dark);
-            transform: scale(1.05) rotate(90deg);
+        .fob:hover {
+            background: var(--iron-70);
+            color: var(--iron-10);
         }
 
-        /* ===== RESPONSIVIDADE ===== */
-        @media (max-width: 428px) {
-            .app-container {
-                margin: 0;
-                border-radius: 0;
-                min-height: 100vh;
-            }
+        /* --- overlay de entrada --- */
+        .entry-veil {
+            position: fixed;
+            inset: 0;
+            background: var(--iron-95);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.7s ease;
+        }
 
-            .bottom-nav {
-                border-radius: 0;
-            }
+        .entry-dialog {
+            max-width: 280px;
+            background: var(--surface);
+            border: 1px solid var(--border-dim);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .entry-title {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            letter-spacing: 0.3em;
+            font-weight: 280;
+            margin-bottom: 1.8rem;
+        }
+
+        .entry-button {
+            background: transparent;
+            border: 1px solid var(--iron-60);
+            color: var(--iron-40);
+            padding: 0.8rem 2rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .entry-button:hover {
+            background: var(--iron-80);
+            color: var(--iron-20);
+        }
+
+        /* utilitários */
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- OVERLAY DE BOAS-VINDAS -->
-    <div id="welcomeOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(102, 126, 234, 0.95); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.5s ease;">
-        <div style="text-align: center; color: white; padding: 40px; max-width: 400px;">
-            <div style="font-size: 4rem; margin-bottom: 20px; animation: bounce 1s infinite;">🎤</div>
-            <h2 style="font-size: 1.8rem; margin-bottom: 15px; font-weight: 600;">Bem-vindo ao FinanceAI!</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 30px; opacity: 0.9;">Toque no botão abaixo para ativar o assistente de voz</p>
-            <button id="activateVoiceBtn" style="padding: 15px 40px; font-size: 1.1rem; background: white; color: #667eea; border: none; border-radius: 50px; cursor: pointer; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: all 0.3s ease;">
-                🔊 Ativar Áudio
-            </button>
+    <!-- tela de entrada cinza escura -->
+    <div id="overlayEntry" class="entry-veil">
+        <div class="entry-dialog">
+            <div class="entry-title">ÆSIR</div>
+            <div style="color: var(--iron-60); font-size:0.6rem; margin:1rem 0;">interface cinza</div>
+            <button class="entry-button" id="enterSystem">acessar</button>
         </div>
     </div>
-    <style>
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        #activateVoiceBtn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-        }
-    </style>
-    
-    <div class="app-container">
-        <!-- HEADER MINIMALISTA -->
-        <header class="app-header">
-            <div class="header-top">
-                <div class="profile-section">
-                    <div class="profile-avatar">
-                        👤
-                    </div>
-                    <div class="profile-info">
-                        <span class="profile-greeting">Bem-vindo</span>
-                        <span class="profile-name">Usuário</span>
-                    </div>
-                </div>
-                <button class="action-btn">🔔</button>
-            </div>
 
-            <!-- SALDO ESTILO BANCO -->
-            <div class="balance-section">
-                <div class="balance-label">Saldo disponível</div>
-                <div class="balance-row">
-                    <h1 class="balance-amount" id="totalBalance">R$ 0,00</h1>
-                    <div class="balance-actions">
-                        <button class="balance-action" id="eyeIcon">👁</button>
-                    </div>
-                </div>
-                <div class="month-selector">
-                    <span id="currentMonth">Setembro</span>
-                    <span>▼</span>
-                </div>
+    <!-- aplicação principal -->
+    <div class="shell">
+        <header class="header-zone">
+            <div class="user-tag">
+                <span class="operator">▸ operador_04</span>
+                <span class="status-pip"></span>
+            </div>
+            <div class="balance-area">
+                <div class="label-micro">saldo</div>
+                <div class="value-main" id="mainBalance">R$ 0,00</div>
+            </div>
+            <div class="action-row">
+                <span class="action-text" id="hideAction">[ ocultar ]</span>
+                <span class="action-text" id="eraseAction">[ limpar ]</span>
+                <span class="action-text" id="monthAction">[ dezembro ]</span>
             </div>
         </header>
 
-        <!-- MAIN -->
-        <main class="app-main">
-            <!-- DASHBOARD -->
-            <div class="page active" id="dashboardPage">
-                <!-- Cards Receita/Despesa -->
-                <div class="stats-row">
-                    <div class="stat-card income">
-                        <div class="stat-label">Receitas</div>
-                        <div class="stat-value" id="totalIncome">R$ 0,00</div>
-                    </div>
-                    <div class="stat-card expense">
-                        <div class="stat-label">Despesas</div>
-                        <div class="stat-value" id="totalExpense">R$ 0,00</div>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Categorias -->
-                <div class="section">
-                    <div class="section-header">
-                        <h3 class="section-title">Despesas por categoria</h3>
-                        <span class="section-action">Ver todas</span>
-                    </div>
-                    <div class="chart-wrapper" id="categoryContent">
-                        <div class="donut-container">
-                            <svg class="donut-chart" id="donutChart" viewBox="0 0 100 100">
-                                <!-- Gerado dinamicamente -->
-                            </svg>
-                        </div>
-                        <div class="categories-list" id="categoryList">
-                            <p class="empty-state">Nenhuma despesa</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ASSISTENTE DE VOZ -->
-                <div class="voice-section">
-                    <div class="voice-container">
-                        <div class="voice-circle" id="voiceCircle">
-                            🎤
-                        </div>
-                        <div class="voice-status" id="voiceStatus">Toque para falar</div>
-                        <div class="voice-transcript" id="transcript"></div>
-
-                        <div class="voice-examples">
-                            <h4>Comandos de voz</h4>
-                            <ul>
-                                <li>Gastei 50 reais com almoço</li>
-                                <li>Recebi 3000 de salário</li>
-                                <li>Paguei 200 de luz</li>
-                                <li>Comprei um tênis de 400 reais</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Transações Recentes -->
-                <div class="section">
-                    <div class="section-header">
-                        <h3 class="section-title">Transações recentes</h3>
-                        <button class="clear-all-btn" id="clearAllBtn">Limpar tudo</button>
-                    </div>
-                    <div class="transactions-list" id="transactionsList">
-                        <p class="empty-state">Nenhuma transação</p>
-                    </div>
-                </div>
+        <!-- estatísticas duas cores de cinza -->
+        <div class="duo-grid">
+            <div class="duo-cell">
+                <div class="duo-label">receita</div>
+                <div class="duo-value" id="incomeDisplay">R$ 0,00</div>
             </div>
+            <div class="duo-cell">
+                <div class="duo-label">despesa</div>
+                <div class="duo-value" id="expenseDisplay">R$ 0,00</div>
+            </div>
+        </div>
 
-            <!-- PÁGINA DE TRANSAÇÕES -->
-            <div class="page" id="transactionsPage">
-                <div class="all-transactions-header">
-                    <h2>Transações</h2>
-                </div>
+        <!-- comando de voz (visual extremamente contido) -->
+        <div class="comm-center">
+            <div class="comm-prompt">> entrada acústica <</div>
+            <div class="comm-activator">
+                <div class="cold-circle" id="voiceTrigger">⌥</div>
+            </div>
+            <div class="status-line" id="voiceStatus">standby</div>
+            <div class="transcript-line" id="voiceFeedback"></div>
+        </div>
 
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">Todas</button>
-                    <button class="filter-btn" data-filter="income">Receitas</button>
-                    <button class="filter-btn" data-filter="expense">Despesas</button>
-                </div>
+        <!-- registro de movimentos -->
+        <div class="ledger-section">
+            <div class="ledger-header">
+                <span>movimento</span>
+                <span>montante</span>
+            </div>
+            <div id="transactionList">
+                <div class="empty-ledger">— vazio —</div>
+            </div>
+        </div>
 
-                <div class="section" style="padding: 0; border: none;">
-                    <div class="transactions-list" id="allTransactionsList">
-                        <p class="empty-state">Nenhuma transação</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- OUTRAS PÁGINAS -->
-            <div class="page" id="budgetPage">
-                <div style="text-align: center; padding: 60px 20px;">
-                    <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
-                    <h3 style="margin-bottom: 10px;">Orçamento</h3>
-                    <p style="color: var(--gray-1);">Em breve</p>
-                </div>
-            </div>
-
-            <div class="page" id="morePage">
-                <div style="text-align: center; padding: 60px 20px;">
-                    <div style="font-size: 3rem; margin-bottom: 20px;">⚙️</div>
-                    <h3 style="margin-bottom: 10px;">Configurações</h3>
-                    <p style="color: var(--gray-1);">Em breve</p>
-                </div>
-            </div>
-        </main>
-
-        <!-- NAVEGAÇÃO INFERIOR -->
-        <nav class="bottom-nav">
-            <div class="nav-item active" data-page="dashboard">
-                <span class="nav-icon">🏠</span>
-                <span>Início</span>
-            </div>
-            <div class="nav-item" data-page="transactions">
-                <span class="nav-icon">📊</span>
-                <span>Histórico</span>
-            </div>
-            <div class="add-button" id="addButton">+</div>
-            <div class="nav-item" data-page="budget">
-                <span class="nav-icon">📈</span>
-                <span>Orçamento</span>
-            </div>
-            <div class="nav-item" data-page="more">
-                <span class="nav-icon">👤</span>
-                <span>Perfil</span>
-            </div>
-        </nav>
+        <!-- barra inferior -->
+        <div class="bottom-bar">
+            <div class="nav-item active"><span class="nav-dot"></span>início</div>
+            <div class="nav-item"><span class="nav-dot"></span>gráfico</div>
+            <div class="fob" id="fabVoice">+</div>
+            <div class="nav-item"><span class="nav-dot"></span>arquivo</div>
+            <div class="nav-item"><span class="nav-dot"></span>sistema</div>
+        </div>
     </div>
 
     <script>
-        class FinanceAI {
-            constructor() {
-                this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-                this.isListening = false;
-                this.recognition = null;
-                this.valuesHidden = false;
-                this.currentFilter = 'all';
-                this.synth = window.speechSynthesis;
-                this.voices = [];
-                this.selectedVoice = null;
-                this.processingCommand = false;
-                this.welcomePlayed = false;
-                
-                this.categories = {
-                    'moradia': { name: 'Moradia', color: '#6C5CE7', keywords: ['aluguel', 'condomínio', 'água', 'luz', 'energia', 'gás', 'internet', 'moradia'] },
-                    'transporte': { name: 'Transporte', color: '#00CEC9', keywords: ['uber', 'taxi', 'ônibus', 'metrô', 'gasolina', 'combustível', 'transporte', 'estacionamento'] },
-                    'alimentacao': { name: 'Alimentação', color: '#00B894', keywords: ['almoço', 'jantar', 'café', 'restaurante', 'lanche', 'supermercado', 'mercado', 'comida', 'alimentação'] },
-                    'lazer': { name: 'Lazer', color: '#FDCB6E', keywords: ['cinema', 'show', 'festa', 'viagem', 'lazer', 'diversão', 'streaming', 'hotel', 'passeio'] },
-                    'saude': { name: 'Saúde', color: '#FF7675', keywords: ['médico', 'remédio', 'farmácia', 'hospital', 'saúde', 'academia'] },
-                    'outros': { name: 'Outros', color: '#A3B1C0', keywords: ['carro', 'moto', 'bicicleta'] }
-                };
-                
-                this.initSpeechRecognition();
-                this.initEventListeners();
-                this.updateUI();
-                this.setCurrentMonth();
-                this.loadVoices();
-            }
-            loadVoices() {
-                const loadVoices = () => {
-                    this.voices = this.synth.getVoices();
-                    this.selectedVoice = this.voices.find(v => v.lang.includes('pt-BR')) || 
-                                        this.voices.find(v => v.lang.includes('pt')) ||
-                                        this.voices[0];
-                    
-                    console.log('🎤 Vozes carregadas:', this.voices.length);
-                    if (this.selectedVoice) {
-                        console.log('✅ Voz selecionada:', this.selectedVoice.name);
-                    }
-                };
-                
-                loadVoices();
-                if (this.synth.onvoiceschanged !== undefined) {
-                    this.synth.onvoiceschanged = loadVoices;
-                }
+        (function() {
+            // estado — cinza, sem alegria
+            let transactions = [];
+            try {
+                const stored = localStorage.getItem('aesir_ledger');
+                if (stored) transactions = JSON.parse(stored);
+            } catch (e) {}
+
+            let hidden = false;
+            let listening = false;
+            let recognition = null;
+            let synth = window.speechSynthesis;
+            let voiceSelected = null;
+
+            // categorias com nomes sóbrios
+            const categories = {
+                'alim': { name: 'alim.', keywords: ['almoço','jantar','café','restaurante','lanche','mercado','supermercado','comida'] },
+                'transp': { name: 'transp', keywords: ['uber','taxi','ônibus','metrô','gasolina','combustível'] },
+                'moradia': { name: 'morad', keywords: ['aluguel','condomínio','água','luz','energia','gás'] },
+                'comum': { name: 'comum', keywords: ['internet','telefone','streaming'] },
+                'outro': { name: 'outro', keywords: [] }
+            };
+
+            // formatação seca
+            function formatBRL(val) {
+                return 'R$ ' + val.toFixed(2).replace('.', ',');
             }
 
-            // ===== MENSAGEM DE BOAS-VINDAS AUTOMÁTICA =====
-            playWelcomeMessage() {
-                console.log('👋 playWelcomeMessage() chamado');
-                console.log('welcomePlayed:', this.welcomePlayed);
-                
-                if (this.welcomePlayed) {
-                    console.log('⚠️ Boas-vindas já foi tocada');
+            function refreshUI() {
+                const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+                const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+                const balance = income - expense;
+
+                document.getElementById('mainBalance').textContent = formatBRL(balance);
+                document.getElementById('incomeDisplay').textContent = formatBRL(income);
+                document.getElementById('expenseDisplay').textContent = formatBRL(expense);
+
+                const mainEl = document.getElementById('mainBalance');
+                const incomeEl = document.getElementById('incomeDisplay');
+                const expenseEl = document.getElementById('expenseDisplay');
+
+                if (hidden) {
+                    mainEl.classList.add('blur');
+                    incomeEl.classList.add('blur');
+                    expenseEl.classList.add('blur');
+                } else {
+                    mainEl.classList.remove('blur');
+                    incomeEl.classList.remove('blur');
+                    expenseEl.classList.remove('blur');
+                }
+
+                // lista de transações
+                const container = document.getElementById('transactionList');
+                if (transactions.length === 0) {
+                    container.innerHTML = '<div class="empty-ledger">— vazio —</div>';
                     return;
                 }
-                
-                const hour = new Date().getHours();
-                let greeting = '';
-                
-                if (hour >= 5 && hour < 12) {
-                    greeting = 'Bom dia';
-                } else if (hour >= 12 && hour < 18) {
-                    greeting = 'Boa tarde';
-                } else {
-                    greeting = 'Boa noite';
-                }
-                
-                const balance = this.transactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0) -
-                    this.transactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                let message = `${greeting}! Bem-vindo ao Finance AI, seu assistente financeiro inteligente. `;
-                
-                if (this.transactions.length === 0) {
-                    message += 'Você ainda não tem transações registradas. Toque no botão do microfone para começar a registrar suas finanças por voz!';
-                } else {
-                    message += `Você tem ${this.transactions.length} transação${this.transactions.length > 1 ? 'ões' : ''} registrada${this.transactions.length > 1 ? 's' : ''}. `;
-                    
-                    if (balance > 0) {
-                        message += `Seu saldo atual é positivo em ${this.formatCurrency(balance)}. Continue assim!`;
-                    } else if (balance < 0) {
-                        message += `Atenção! Seu saldo está negativo em ${this.formatCurrency(Math.abs(balance))}. Vamos controlar melhor os gastos?`;
-                    } else {
-                        message += 'Suas receitas e despesas estão equilibradas.';
-                    }
-                }
-                
-                console.log('📢 Mensagem completa:', message);
-                console.log('🔊 Tentando falar agora...');
-                
-                // Marca como tocada ANTES de falar
-                this.welcomePlayed = true;
-                
-                // Cancela qualquer fala anterior
-                this.synth.cancel();
-                
-                // Cria a fala
-                const utterance = new SpeechSynthesisUtterance(message);
-                utterance.lang = 'pt-BR';
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
 
-                if (this.selectedVoice) {
-                    utterance.voice = this.selectedVoice;
-                    console.log('🎤 Usando voz:', this.selectedVoice.name);
-                } else {
-                    console.log('⚠️ Nenhuma voz selecionada, usando padrão');
-                }
-
-                utterance.onstart = () => {
-                    console.log('✅ ÁUDIO INICIOU!');
-                };
-
-                utterance.onend = () => {
-                    console.log('✅ ÁUDIO TERMINOU!');
-                };
-
-                utterance.onerror = (event) => {
-                    console.error('❌ ERRO NO ÁUDIO:', event.error);
-                    console.error('Detalhes do erro:', event);
-                };
-
-                // Fala IMEDIATAMENTE
-                this.synth.speak(utterance);
-                console.log('🎵 Comando synth.speak() executado');
-            }
-
-            setCurrentMonth() {
-                const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                               'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                const currentMonth = new Date().getMonth();
-                document.getElementById('currentMonth').textContent = months[currentMonth];
-            }
-
-            initSpeechRecognition() {
-                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    this.recognition = new SpeechRecognition();
-                    this.recognition.lang = 'pt-BR';
-                    this.recognition.continuous = false;
-                    this.recognition.interimResults = false;
-                    this.recognition.maxAlternatives = 1;
-
-                    this.recognition.onstart = () => {
-                        this.isListening = true;
-                        const voiceCircle = document.getElementById('voiceCircle');
-                        const voiceStatus = document.getElementById('voiceStatus');
-                        
-                        if (voiceCircle) voiceCircle.classList.add('active');
-                        if (voiceStatus) voiceStatus.textContent = '🎤 Ouvindo... Fale agora';
-                    };
-
-                    this.recognition.onresult = (event) => {
-                        if (this.processingCommand) return;
-                        this.processingCommand = true;
-                        
-                        const transcript = event.results[0][0].transcript;
-                        document.getElementById('transcript').textContent = `"${transcript}"`;
-                        this.processVoiceCommand(transcript);
-                    };
-
-                    this.recognition.onerror = (event) => {
-                        console.error('Erro no reconhecimento:', event.error);
-                        this.stopListening();
-                        document.getElementById('voiceStatus').textContent = '❌ Erro. Tente novamente';
-                        this.processingCommand = false;
-                    };
-
-                    this.recognition.onend = () => {
-                        this.stopListening();
-                    };
-                } else {
-                    console.error('Reconhecimento de voz não suportado');
-                    document.getElementById('voiceStatus').textContent = '❌ Não suportado';
-                }
-            }
-
-            stopListening() {
-                this.isListening = false;
-                const voiceCircle = document.getElementById('voiceCircle');
-                const voiceStatus = document.getElementById('voiceStatus');
-                
-                if (voiceCircle) voiceCircle.classList.remove('active');
-                if (voiceStatus) {
-                    setTimeout(() => {
-                        voiceStatus.textContent = 'Toque para falar';
-                    }, 2000);
-                }
-            }
-
-            initEventListeners() {
-                // Botão de ativar áudio do overlay
-                const activateBtn = document.getElementById('activateVoiceBtn');
-                const welcomeOverlay = document.getElementById('welcomeOverlay');
-                
-                if (activateBtn && welcomeOverlay) {
-                    activateBtn.addEventListener('click', () => {
-                        console.log('🎵 Usuário clicou para ativar áudio');
-                        
-                        // Remove o overlay com animação
-                        welcomeOverlay.style.opacity = '0';
-                        setTimeout(() => {
-                            welcomeOverlay.style.display = 'none';
-                        }, 500);
-                        
-                        // Força carregar vozes novamente
-                        this.voices = this.synth.getVoices();
-                        this.selectedVoice = this.voices.find(v => v.lang.includes('pt-BR')) || 
-                                            this.voices.find(v => v.lang.includes('pt')) ||
-                                            this.voices[0];
-                        
-                        console.log('🎤 Vozes disponíveis:', this.voices.length);
-                        console.log('🎤 Voz selecionada:', this.selectedVoice ? this.selectedVoice.name : 'Nenhuma');
-                        
-                        // Toca a mensagem de boas-vindas IMEDIATAMENTE
-                        this.playWelcomeMessage();
-                    });
-                }
-                
-                // Botão limpar tudo
-                const clearBtn = document.getElementById('clearAllBtn');
-                if (clearBtn) {
-                    console.log('✅ Botão Limpar Tudo encontrado');
-                    clearBtn.addEventListener('click', () => {
-                        console.log('🗑️ Botão Limpar Tudo clicado');
-                        this.clearAllTransactions();
-                    });
-                } else {
-                    console.error('❌ Botão Limpar Tudo NÃO encontrado');
-                }
-                
-                document.getElementById('voiceCircle')?.addEventListener('click', () => this.startListening());
-                document.getElementById('addButton')?.addEventListener('click', () => this.startListening());
-                
-                document.getElementById('eyeIcon')?.addEventListener('click', () => this.toggleValuesVisibility());
-
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const page = item.getAttribute('data-page');
-                        if (page) this.navigateToPage(page);
-                    });
-                });
-
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.currentFilter = btn.getAttribute('data-filter');
-                        this.renderAllTransactions();
-                    });
-                });
-
-                document.querySelectorAll('.voice-examples li').forEach(item => {
-                    item.addEventListener('click', () => {
-                        this.processVoiceCommand(item.textContent);
-                    });
-                });
-            }
-
-            startListening() {
-                if (this.recognition && !this.isListening) {
-                    try {
-                        this.recognition.start();
-                    } catch (error) {
-                        console.error('Erro ao iniciar:', error);
-                    }
-                }
-            }
-
-            processVoiceCommand(command) {
-                console.log('========================================');
-                console.log('🎤 COMANDO RECEBIDO:', command);
-                
-                const lowerCommand = command.toLowerCase();
-                
-                // Dicionário completo de números por extenso
-                const numberWords = {
-                    'zero': 0, 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3,
-                    'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9,
-                    'dez': 10, 'onze': 11, 'doze': 12, 'treze': 13, 'quatorze': 14, 'catorze': 14,
-                    'quinze': 15, 'dezesseis': 16, 'dezessete': 17, 'dezoito': 18, 'dezenove': 19,
-                    'vinte': 20, 'trinta': 30, 'quarenta': 40, 'cinquenta': 50,
-                    'sessenta': 60, 'setenta': 70, 'oitenta': 80, 'noventa': 90,
-                    'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300,
-                    'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600,
-                    'setecentos': 700, 'oitocentos': 800, 'novecentos': 900
-                };
-                
-                let value = null;
-                
-                // PASSO 1: Procura números digitados primeiro
-                const numberMatch = lowerCommand.match(/(\d+(?:[.,]\d+)?)/);
-                if (numberMatch) {
-                    value = parseFloat(numberMatch[1].replace(',', '.'));
-                    console.log('✅ Encontrei número digitado:', value);
-                }
-                
-                // PASSO 2: Se não encontrou, procura por extenso
-                if (!value) {
-                    console.log('🔍 Procurando números por extenso...');
-                    
-                    // Procura "X mil" por extenso (ex: "dois mil")
-                    for (const [word, num] of Object.entries(numberWords)) {
-                        const milPattern = new RegExp('\\b' + word + '\\s+mil\\b', 'i');
-                        if (milPattern.test(lowerCommand)) {
-                            value = num * 1000;
-                            console.log(`✅ Encontrei "${word} mil" = ${value}`);
+                let html = '';
+                transactions.slice(0, 10).forEach(t => {
+                    let catName = 'outro';
+                    for (let [key, c] of Object.entries(categories)) {
+                        if (c.keywords.some(kw => t.description.toLowerCase().includes(kw))) {
+                            catName = c.name;
                             break;
                         }
                     }
-                    
-                    // Se não encontrou "X mil", procura números compostos (ex: vinte e cinco)
-                    if (!value) {
-                        const composedPattern = /(vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+e\s+(um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove)/i;
-                        const composedMatch = lowerCommand.match(composedPattern);
-                        if (composedMatch) {
-                            const tens = numberWords[composedMatch[1]];
-                            const ones = numberWords[composedMatch[2]];
-                            value = tens + ones;
-                            console.log(`✅ Encontrei número composto "${composedMatch[0]}" = ${value}`);
-                        }
-                    }
-                    
-                    // Se ainda não encontrou, procura números simples
-                    if (!value) {
-                        for (const [word, num] of Object.entries(numberWords)) {
-                            const wordPattern = new RegExp('\\b' + word + '\\b', 'i');
-                            if (wordPattern.test(lowerCommand)) {
-                                value = num;
-                                console.log(`✅ Encontrei palavra "${word}" = ${value}`);
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                // PASSO 3: Procura "X mil" com número digitado
-                if (!value) {
-                    const milMatch = lowerCommand.match(/(\d+)\s*mil/i);
-                    if (milMatch) {
-                        value = parseInt(milMatch[1]) * 1000;
-                        console.log('✅ Encontrei número + mil:', value);
-                    }
-                }
-                
-                console.log('💰 VALOR FINAL:', value);
+                    const sign = t.type === 'income' ? '' : '−';
+                    html += `
+                        <div class="row-item">
+                            <div class="row-left">
+                                <span class="row-desc">${t.description.substring(0, 20)}</span>
+                                <span class="row-cat">${catName}</span>
+                            </div>
+                            <div class="row-number ${t.type}">${sign} ${formatBRL(t.amount)}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
 
-                // Detecta tipo (receita ou despesa)
-                let type = 'expense';
-                const incomeWords = ['recebi', 'ganhei', 'receita', 'salário', 'vendi', 'lucrei', 'recebido'];
-                for (const word of incomeWords) {
-                    if (lowerCommand.includes(word)) {
-                        type = 'income';
-                        console.log('📥 Tipo: RECEITA');
-                        break;
-                    }
-                }
-                
-                if (type === 'expense') {
-                    console.log('� Tipo: DESPESA');
-                }
+            function persist() {
+                localStorage.setItem('aesir_ledger', JSON.stringify(transactions));
+                refreshUI();
+            }
 
-                // Extrai descrição (remove números e palavras comuns)
-                let description = command
+            function addTrans(type, val, desc) {
+                transactions.unshift({
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    amount: val,
+                    description: desc.substring(0, 24),
+                    date: new Date().toLocaleDateString('pt-BR')
+                });
+                persist();
+            }
+
+            function clearAllTrans() {
+                if (transactions.length && confirm('apagar todo o registro?')) {
+                    transactions = [];
+                    persist();
+                    speak('registro limpo');
+                }
+            }
+
+            // Voz
+            function loadVoices() {
+                const v = synth.getVoices();
+                voiceSelected = v.find(v => v.lang.includes('pt-BR')) || v.find(v => v.lang.includes('pt')) || v[0];
+            }
+            loadVoices();
+            if (synth.onvoiceschanged) synth.onvoiceschanged = loadVoices;
+
+            function speak(msg) {
+                if (!synth) return;
+                synth.cancel();
+                const u = new SpeechSynthesisUtterance(msg);
+                u.lang = 'pt-BR';
+                u.rate = 0.9;
+                if (voiceSelected) u.voice = voiceSelected;
+                synth.speak(u);
+            }
+
+            // Reconhecimento
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SR();
+                recognition.lang = 'pt-BR';
+                recognition.continuous = false;
+                recognition.interimResults = true;
+
+                recognition.onstart = () => {
+                    listening = true;
+                    document.getElementById('voiceTrigger').classList.add('active');
+                    document.getElementById('voiceStatus').innerText = '> ouvindo <';
+                };
+                recognition.onend = () => {
+                    listening = false;
+                    document.getElementById('voiceTrigger').classList.remove('active');
+                    document.getElementById('voiceStatus').innerText = 'standby';
+                    setTimeout(() => document.getElementById('voiceFeedback').innerText = '', 1500);
+                };
+                recognition.onerror = () => {
+                    listening = false;
+                    document.getElementById('voiceTrigger').classList.remove('active');
+                    document.getElementById('voiceStatus').innerText = 'falha';
+                };
+                recognition.onresult = (ev) => {
+                    const last = ev.results[ev.results.length-1];
+                    const transcript = last[0].transcript;
+                    document.getElementById('voiceFeedback').innerText = '> ' + transcript + ' <';
+                    if (last.isFinal) {
+                        parseCommand(transcript);
+                    }
+                };
+            }
+
+            function parseCommand(cmd) {
+                const lower = cmd.toLowerCase();
+                // extrair número
+                let amount = null;
+                const mapa = {
+                    'zero':0,'um':1,'dois':2,'três':3,'tres':3,'quatro':4,'cinco':5,'seis':6,'sete':7,'oito':8,'nove':9,
+                    'dez':10,'onze':11,'doze':12,'treze':13,'quatorze':14,'quinze':15,'vinte':20,'trinta':30,
+                    'quarenta':40,'cinquenta':50,'sessenta':60,'setenta':70,'oitenta':80,'noventa':90,'cem':100,
+                    'cento':100,'duzentos':200,'trezentos':300
+                };
+                let parsed = lower;
+                for (let [w, n] of Object.entries(mapa)) parsed = parsed.replace(new RegExp('\\b' + w + '\\b','g'), n);
+                const nums = parsed.match(/\d+/g);
+                if (nums) amount = parseInt(nums[0], 10);
+
+                const isIncome = /recebi|ganhei|salário|entrada/i.test(lower);
+                const type = isIncome ? 'income' : 'expense';
+
+                let desc = cmd
                     .replace(/\d+\s*mil/gi, '')
-                    .replace(/\d+(?:[.,]\d+)?/g, '')
+                    .replace(/\d+/g, '')
                     .replace(/reais?/gi, '')
                     .replace(/r\$/gi, '')
-                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|com|em|para|um|uma|o|a|e)\b/gi, '')
-                    .replace(/\b(zero|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento|duzentos|trezentos|quatrocentos|quinhentos|seiscentos|setecentos|oitocentos|novecentos|mil)\b/gi, '')
+                    .replace(/\b(gastei|paguei|comprei|recebi|ganhei|de|em|para|um|uma)\b/gi, '')
                     .trim()
                     .replace(/\s+/g, ' ');
-                
-                if (!description || description.length < 2) {
-                    description = type === 'expense' ? 'Despesa' : 'Receita';
-                }
-                
-                console.log('📝 Descrição:', description);
-                console.log('========================================');
 
-                if (value && value > 0) {
-                    this.addTransaction(type, value, description);
-                    
-                    const mensagens = [
-                        `Registrado! ${this.formatCurrency(value)} em ${description}`,
-                        `Pronto! Anotei ${this.formatCurrency(value)} de ${description}`,
-                        `Feito! ${this.formatCurrency(value)} registrado em ${description}`
-                    ];
-                    const msg = mensagens[Math.floor(Math.random() * mensagens.length)];
-                    this.speak(msg);
-                    
-                    document.getElementById('voiceStatus').textContent = '✅ Registrado!';
-                    document.getElementById('transcript').textContent = '';
+                if (!desc || desc.length < 2) desc = type === 'income' ? 'receita' : 'despesa';
+
+                if (amount && amount > 0) {
+                    addTrans(type, amount, desc);
+                    speak(`registro: ${formatBRL(amount)}`);
+                    document.getElementById('voiceStatus').innerText = '✓ registrado';
                 } else {
-                    console.log('❌ VALOR NÃO ENCONTRADO OU INVÁLIDO');
-                    this.speak('Não consegui entender o valor. Pode repetir falando o número?');
-                    document.getElementById('voiceStatus').textContent = '❌ Valor não identificado';
+                    speak('valor não identificado');
+                    document.getElementById('voiceStatus').innerText = '? não compreendido';
                 }
+            }
 
+            function toggleListening() {
+                if (!recognition) { speak('voz indisponível'); return; }
+                if (listening) recognition.stop();
+                else recognition.start();
+            }
+
+            // --- inicialização ---
+            refreshUI();
+
+            // overlay
+            const veil = document.getElementById('overlayEntry');
+            const enterBtn = document.getElementById('enterSystem');
+            enterBtn.addEventListener('click', () => {
+                veil.style.opacity = '0';
+                setTimeout(() => veil.style.display = 'none', 700);
+                // mensagem de boas vindas (sóbria)
                 setTimeout(() => {
-                    document.getElementById('transcript').textContent = '';
-                    document.getElementById('voiceStatus').textContent = 'Toque para falar';
-                    this.processingCommand = false;
-                }, 3000);
-            }
+                    const h = new Date().getHours();
+                    let greet = h < 12 ? 'bom dia' : h < 18 ? 'boa tarde' : 'boa noite';
+                    let msg = `${greet}, sistema cinza.`;
+                    if (transactions.length) msg += ` ${transactions.length} movimentos.`;
+                    else msg += ' toque no microfone para comandar.';
+                    speak(msg);
+                }, 800);
+            });
 
-            speak(text) {
-                if (!this.synth) {
-                    console.error('SpeechSynthesis não suportado');
-                    return;
-                }
-
-                this.synth.cancel();
-
-                setTimeout(() => {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'pt-BR';
-                    utterance.rate = 1.1;
-                    utterance.pitch = 1;
-                    utterance.volume = 1;
-
-                    if (this.selectedVoice) {
-                        utterance.voice = this.selectedVoice;
-                    }
-
-                    utterance.onstart = () => {
-                        console.log('🔊 Falando:', text);
-                    };
-
-                    utterance.onend = () => {
-                        console.log('✅ Fala concluída');
-                    };
-
-                    utterance.onerror = (event) => {
-                        console.error('❌ Erro na fala:', event);
-                    };
-
-                    this.synth.speak(utterance);
-                }, 100);
-            }
-
-            playWelcomeMessage() {
-                if (this.welcomePlayed) return;
-                
-                this.welcomePlayed = true;
-                
-                const hour = new Date().getHours();
-                let greeting = '';
-                
-                if (hour >= 5 && hour < 12) {
-                    greeting = 'Bom dia';
-                } else if (hour >= 12 && hour < 18) {
-                    greeting = 'Boa tarde';
-                } else {
-                    greeting = 'Boa noite';
-                }
-                
-                const balance = this.transactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0) -
-                    this.transactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                let message = `${greeting}! Bem-vindo ao Finance AI, seu assistente financeiro inteligente. `;
-                
-                if (this.transactions.length === 0) {
-                    message += 'Você ainda não tem transações registradas. Toque no botão do microfone ou no botão de adicionar para começar a registrar suas finanças por voz!';
-                } else {
-                    message += `Você tem ${this.transactions.length} transação${this.transactions.length > 1 ? 'ões' : ''} registrada${this.transactions.length > 1 ? 's' : ''}. `;
-                    
-                    if (balance > 0) {
-                        message += `Seu saldo atual é positivo em ${this.formatCurrency(balance)}. Continue assim!`;
-                    } else if (balance < 0) {
-                        message += `Atenção! Seu saldo está negativo em ${this.formatCurrency(Math.abs(balance))}. Vamos controlar melhor os gastos?`;
-                    } else {
-                        message += 'Suas receitas e despesas estão equilibradas.';
-                    }
-                }
-                
-                console.log('👋 Mensagem de boas-vindas:', message);
-                this.speak(message);
-            }
-
-            addTransaction(type, amount, description) {
-                const category = this.categorizeTransaction(description);
-                
-                const transaction = {
-                    id: Date.now(),
-                    type,
-                    amount,
-                    description: this.capitalizeFirst(description),
-                    category: category,
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    timestamp: Date.now()
-                };
-
-                this.transactions.unshift(transaction);
-                this.saveTransactions();
-                this.updateUI();
-            }
-
-            categorizeTransaction(description) {
-                const lowerDesc = description.toLowerCase();
-                
-                for (const [key, category] of Object.entries(this.categories)) {
-                    for (const keyword of category.keywords) {
-                        if (lowerDesc.includes(keyword)) {
-                            return key;
-                        }
-                    }
-                }
-                return 'outros';
-            }
-
-            saveTransactions() {
-                localStorage.setItem('transactions', JSON.stringify(this.transactions));
-            }
-
-            updateUI() {
-                const income = this.transactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0);
-
-                const expense = this.transactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-
-                const balance = income - expense;
-
-                document.getElementById('totalBalance').textContent = this.formatCurrency(balance);
-                document.getElementById('totalIncome').textContent = this.formatCurrency(income);
-                document.getElementById('totalExpense').textContent = this.formatCurrency(expense);
-
-                this.renderTransactions();
-                this.renderCategories();
-                
-                if (this.valuesHidden) {
-                    document.querySelectorAll('.balance-amount, .stat-value, .transaction-amount, .category-value').forEach(el => {
-                        el.classList.add('hidden');
-                    });
-                }
-            }
-
-            renderCategories() {
-                const expenses = this.transactions.filter(t => t.type === 'expense');
-                
-                if (expenses.length === 0) {
-                    document.getElementById('categoryList').innerHTML = '<p class="empty-state">Nenhuma despesa</p>';
-                    document.getElementById('donutChart').innerHTML = '';
-                    return;
-                }
-
-                const categoryTotals = {};
-                expenses.forEach(t => {
-                    const cat = t.category || 'outros';
-                    categoryTotals[cat] = (categoryTotals[cat] || 0) + t.amount;
-                });
-
-                const total = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
-
-                document.getElementById('categoryList').innerHTML = Object.entries(categoryTotals)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => {
-                        const cat = this.categories[key] || this.categories.outros;
-                        return `
-                            <div class="category-item">
-                                <div class="category-info">
-                                    <span class="category-dot" style="background: ${cat.color};"></span>
-                                    <span class="category-name">${cat.name}</span>
-                                </div>
-                                <span class="category-value ${this.valuesHidden ? 'hidden' : ''}">${this.formatCurrency(value)}</span>
-                            </div>
-                        `;
-                    }).join('');
-
-                const chart = document.getElementById('donutChart');
-                const radius = 40;
-                const circumference = 2 * Math.PI * radius;
-                let offset = 0;
-
-                const circles = Object.entries(categoryTotals)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => {
-                        const cat = this.categories[key] || this.categories.outros;
-                        const percent = value / total;
-                        const dash = percent * circumference;
-                        const circle = `<circle 
-                            cx="50" cy="50" r="${radius}" 
-                            fill="none" 
-                            stroke="${cat.color}" 
-                            stroke-width="20" 
-                            stroke-dasharray="${dash} ${circumference}" 
-                            stroke-dashoffset="${-offset}"
-                            transform="rotate(-90 50 50)"
-                        />`;
-                        offset += dash;
-                        return circle;
-                    }).join('');
-
-                chart.innerHTML = circles;
-            }
-
-            renderTransactions() {
-                const list = document.getElementById('transactionsList');
-                
-                if (this.transactions.length === 0) {
-                    list.innerHTML = '<p class="empty-state">Nenhuma transação</p>';
-                    return;
-                }
-
-                list.innerHTML = this.transactions.slice(0, 5).map(t => `
-                    <div class="transaction-item ${t.type}">
-                        <div class="transaction-info">
-                            <div class="transaction-icon">
-                                ${t.type === 'income' ? '💰' : '💸'}
-                            </div>
-                            <div class="transaction-details">
-                                <h4>${t.description}</h4>
-                                <p>${t.date}</p>
-                            </div>
-                        </div>
-                        <div class="transaction-right">
-                            <div class="transaction-amount ${this.valuesHidden ? 'hidden' : ''}">
-                                ${t.type === 'income' ? '+' : '-'} ${this.formatCurrency(t.amount)}
-                            </div>
-                            <button class="delete-btn" onclick="app.deleteTransaction(${t.id})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            renderAllTransactions() {
-                const list = document.getElementById('allTransactionsList');
-                
-                let filtered = this.transactions;
-                if (this.currentFilter !== 'all') {
-                    filtered = this.transactions.filter(t => t.type === this.currentFilter);
-                }
-
-                if (filtered.length === 0) {
-                    list.innerHTML = '<p class="empty-state">Nenhuma transação</p>';
-                    return;
-                }
-
-                list.innerHTML = filtered.map(t => `
-                    <div class="transaction-item ${t.type}">
-                        <div class="transaction-info">
-                            <div class="transaction-icon">
-                                ${t.type === 'income' ? '💰' : '💸'}
-                            </div>
-                            <div class="transaction-details">
-                                <h4>${t.description}</h4>
-                                <p>${t.date}</p>
-                            </div>
-                        </div>
-                        <div class="transaction-right">
-                            <div class="transaction-amount ${this.valuesHidden ? 'hidden' : ''}">
-                                ${t.type === 'income' ? '+' : '-'} ${this.formatCurrency(t.amount)}
-                            </div>
-                            <button class="delete-btn" onclick="app.deleteTransaction(${t.id})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            deleteTransaction(id) {
-                if (confirm('Apagar esta transação?')) {
-                    this.transactions = this.transactions.filter(t => t.id !== id);
-                    this.saveTransactions();
-                    this.updateUI();
-                    this.renderAllTransactions();
-                    this.speak('Transação apagada');
-                }
-            }
-
-            clearAllTransactions() {
-                console.log('🗑️ clearAllTransactions chamado');
-                console.log('Número de transações:', this.transactions.length);
-                
-                if (this.transactions.length === 0) {
-                    alert('Não há transações para apagar');
-                    this.speak('Não há transações para apagar');
-                    return;
-                }
-                
-                if (confirm(`Tem certeza que deseja apagar todas as ${this.transactions.length} transações? Esta ação não pode ser desfeita!`)) {
-                    console.log('✅ Usuário confirmou exclusão');
-                    this.transactions = [];
-                    this.saveTransactions();
-                    this.updateUI();
-                    this.renderAllTransactions();
-                    this.speak('Todas as transações foram apagadas');
-                    console.log('✅ Transações apagadas com sucesso');
-                } else {
-                    console.log('❌ Usuário cancelou exclusão');
-                }
-            }
-
-            toggleValuesVisibility() {
-                this.valuesHidden = !this.valuesHidden;
-                document.getElementById('eyeIcon').textContent = this.valuesHidden ? '👁️‍🗨️' : '👁';
-                
-                document.querySelectorAll('.balance-amount, .stat-value, .transaction-amount, .category-value').forEach(el => {
-                    el.classList.toggle('hidden', this.valuesHidden);
-                });
-            }
-
-            navigateToPage(pageName) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                
-                const map = {
-                    'dashboard': 'dashboardPage',
-                    'transactions': 'transactionsPage',
-                    'budget': 'budgetPage',
-                    'more': 'morePage'
-                };
-                
-                document.getElementById(map[pageName])?.classList.add('active');
-                document.querySelector(`.nav-item[data-page="${pageName}"]`)?.classList.add('active');
-                
-                if (pageName === 'transactions') this.renderAllTransactions();
-            }
-
-            formatCurrency(value) {
-                return new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                }).format(value);
-            }
-
-            capitalizeFirst(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1);
-            }
-
-        }
-
-        const app = new FinanceAI();
+            // botoes
+            document.getElementById('voiceTrigger').addEventListener('click', toggleListening);
+            document.getElementById('fabVoice').addEventListener('click', toggleListening);
+            document.getElementById('hideAction').addEventListener('click', () => {
+                hidden = !hidden;
+                refreshUI();
+                document.getElementById('hideAction').innerText = hidden ? '[ mostrar ]' : '[ ocultar ]';
+            });
+            document.getElementById('eraseAction').addEventListener('click', clearAllTrans);
+            document.getElementById('monthAction').addEventListener('click', () => speak('dezembro'));
+        })();
     </script>
 </body>
 </html>
